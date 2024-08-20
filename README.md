@@ -11,4 +11,4 @@ dotnet build
 dotnet run
 
 ## VERSION ACTUAL
-1.0.0
+1.0.1
