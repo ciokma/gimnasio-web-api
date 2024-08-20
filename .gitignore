@@ -1,0 +1,31 @@
+# Archivos de compilación
+bin/
+obj/
+
+# Configuración específica de usuario
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Paquetes de NuGet
+packages/
+
+# Archivos de logs
+*.log
+
+# Configuración local del entorno
+appsettings.Development.json
+appsettings.Local.json
+
+# Archivos temporales de Visual Studio Code
+.vscode/
+
+# Directorios de dependencias de Node.js (si usas npm/yarn para frontend)
+node_modules/
+
+# Archivos de resultados de pruebas
+TestResults/
+
+# Archivos de publicación
+publish/
