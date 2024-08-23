@@ -17,6 +17,8 @@ namespace gimnasio_web_api
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
+            builder.Services.AddControllers();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -38,10 +40,18 @@ namespace gimnasio_web_api
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gimnasio API V1");
+                    c.RoutePrefix = string.Empty;
+                });
             }
 
             app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
+
+            app.MapControllers();
 
             var summaries = new[]
             {
