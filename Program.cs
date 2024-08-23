@@ -13,11 +13,13 @@ namespace gimnasio_web_api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowReactApp",
@@ -30,6 +32,9 @@ namespace gimnasio_web_api
             });
 
             var app = builder.Build();
+
+            app.UseCors("AllowReactApp");
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
