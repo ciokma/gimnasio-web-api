@@ -13,8 +13,9 @@ namespace gimnasio_web_api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
-            // Configura servicios en el contenedor
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors(options =>
@@ -29,16 +30,11 @@ namespace gimnasio_web_api
             });
 
             var app = builder.Build();
-
-            // Configura el pipeline de solicitudes HTTP
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
             app.UseHttpsRedirection();
 

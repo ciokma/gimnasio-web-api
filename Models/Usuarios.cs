@@ -32,4 +32,11 @@ public class Usuarios
     public string? Observaciones { get; set; }
 
     public ICollection<Fechas_Usuario>? FechasUsuario { get; set; }
+
+    public Usuarios()
+    {
+        Nombres = string.Empty;
+        Apellidos = string.Empty;
+        Telefono = string.Empty;
+    }
 }
