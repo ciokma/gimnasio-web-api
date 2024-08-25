@@ -19,21 +19,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        # SonarCloud
-  
-      - name: Install SonarCloud Scanner
-        run: dotnet tool install --global dotnet-sonarscanner
-
-      - name: Set up SonarCloud environment variables
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          echo "SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}" >> $GITHUB_ENV
-          echo "SONAR_PROJECT_KEY=ciokma_gimnasio-web-api" >> $GITHUB_ENV
-          echo "SONAR_ORG=Mauricio Perez" >> $GITHUB_ENV
-
-
-      # Fin de configuracion SonarCloud
+      
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
@@ -47,14 +33,6 @@ jobs:
        
       - name: Build
         run: dotnet build
-      - name: Run SonarCloud analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          dotnet sonarscanner begin /k:"${{ secrets.SONAR_PROJECT_KEY }}" /o:"${{ secrets.SONAR_ORG }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build --no-restore
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
 
       - name: Test with the dotnet CLI
         run: dotnet test
