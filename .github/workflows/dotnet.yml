@@ -17,19 +17,29 @@ jobs:
         dotnet-version: [ '8.0.x' ]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
+      
+      - name: List files in the directory
+        run: ls -la
+
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore gimnasio-web-api.csproj
+       
       - name: Build
         run: dotnet build
+
       - name: Test with the dotnet CLI
         run: dotnet test
+
       - name: Package
         run: dotnet publish --configuration Release --no-restore --output ./output
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
