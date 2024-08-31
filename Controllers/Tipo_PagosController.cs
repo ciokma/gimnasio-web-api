@@ -4,11 +4,11 @@ using gimnasio_web_api.Data;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TipoPagosController : ControllerBase
+public class Tipo_PagosController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public TipoPagosController(AppDbContext context)
+    public Tipo_PagosController(AppDbContext context)
     {
         _context = context;
     }
@@ -35,6 +35,11 @@ public class TipoPagosController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Tipo_Pagos>> PostTipoPago(Tipo_Pagos tipoPago)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         _context.Tipo_Pagos.Add(tipoPago);
         await _context.SaveChangesAsync();
 
