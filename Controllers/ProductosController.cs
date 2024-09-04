@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using gimnasio_web_api.Data;
+using gimnasio_web_api.Models;
 
 namespace gimnasio_web_api.Controllers
 {

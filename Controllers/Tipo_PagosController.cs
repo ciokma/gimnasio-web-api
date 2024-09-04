@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using gimnasio_web_api.Data;
+using gimnasio_web_api.Models;
 
 [Route("api/[controller]")]
 [ApiController]

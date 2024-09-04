@@ -2,21 +2,23 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 
-[Table("tipoejercicio")]
-public class Tipo_Ejercicio
+namespace gimnasio_web_api.Models
 {
-    [Key]
-    [JsonRequired]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Codigo { get; set; }
+    [Table("tipoejercicio")]
+    public class Tipo_Ejercicio
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Codigo { get; set; }
 
-    [JsonRequired]
-    [MaxLength(50)]
-    public required string Descripcion { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public string Descripcion { get; set; }
 
-    [JsonRequired]
-    public required int Costo { get; set; }
+        [Required]
+        public int Costo { get; set; }
 
-    [JsonRequired]
-    public required bool Activo { get; set; }
+        [Required]
+        public bool Activo { get; set; }
+    }
 }

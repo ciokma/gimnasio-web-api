@@ -1,22 +1,24 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
-[Table("productos")]
-public class Producto
+namespace gimnasio_web_api.Models
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int CodigoProducto { get; set; }
-    
-    [JsonRequired]
-    [StringLength(50)]
-    public required string Descripcion { get; set; }
+    [Table("productos")]
+    public class Producto
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int CodigoProducto { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string Descripcion { get; set; }
 
-    [JsonRequired]
-    [Column(TypeName = "decimal(10,2)")]
-    public required decimal Precio { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal Precio { get; set; }
 
-    [JsonRequired]
-    public required double Existencias { get; set; }
+        [Required]
+        public double Existencias { get; set; }
+    }
 }
