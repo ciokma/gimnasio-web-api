@@ -5,6 +5,11 @@ using System;
 using System.Linq;
 using gimnasio_web_api.Data;
 using Microsoft.EntityFrameworkCore;
+<<<<<<< HEAD
+using gimnasio_web_api.Repositories;
+=======
+using Newtonsoft.Json;
+>>>>>>> f5ee395af75d359724d1b55de85dea79640b7d03
 
 namespace gimnasio_web_api
 {
@@ -17,7 +22,11 @@ namespace gimnasio_web_api
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                });
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -32,6 +41,9 @@ namespace gimnasio_web_api
                               .AllowAnyMethod();
                     });
             });
+
+            //Inyectando dependencias
+            builder.Services.AddScoped<IRepository<Usuarios>, UsuarioRepository>();
 
             var app = builder.Build();
 

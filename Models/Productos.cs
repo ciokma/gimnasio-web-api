@@ -3,21 +3,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gimnasio_web_api.Models
 {
-    [Table("tipoejercicio")]
-    public class Tipo_Ejercicio
+    [Table("productos")]
+    public class Producto
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Codigo { get; set; }
-
+        public int CodigoProducto { get; set; }
+        
         [Required]
-        [MaxLength(50)]
+        [StringLength(50)]
         public string Descripcion { get; set; } = null!;
 
         [Required]
-        public int Costo { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal Precio { get; set; }
 
         [Required]
-        public bool Activo { get; set; }
+        public double Existencias { get; set; }
     }
 }

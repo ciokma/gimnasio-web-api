@@ -3,72 +3,76 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using gimnasio_web_api.Data;
+using gimnasio_web_api.Models;
 
-[Route("api/[controller]")]
-[ApiController]
-public class Tipo_EjercicioController : ControllerBase
+namespace gimnasio_web_api.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public Tipo_EjercicioController(AppDbContext context)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class Tipo_EjercicioController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Tipo_Ejercicio>>> GetTipoEjercicios()
-    {
-        return await _context.Tipo_Ejercicio.ToListAsync();
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Tipo_Ejercicio>> GetTipoEjercicio(int id)
-    {
-        var tipoEjercicio = await _context.Tipo_Ejercicio.FindAsync(id);
-
-        if (tipoEjercicio == null)
+        public Tipo_EjercicioController(AppDbContext context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        return tipoEjercicio;
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<Tipo_Ejercicio>> PostTipoEjercicio(Tipo_Ejercicio tipoEjercicio)
-    {
-        _context.Tipo_Ejercicio.Add(tipoEjercicio);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetTipoEjercicio), new { id = tipoEjercicio.Codigo }, tipoEjercicio);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutTipoEjercicio(int id, Tipo_Ejercicio tipoEjercicio)
-    {
-        if (id != tipoEjercicio.Codigo)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Tipo_Ejercicio>>> GetTipoEjercicios()
         {
-            return BadRequest();
+            return await _context.Tipo_Ejercicio.ToListAsync();
         }
 
-        _context.Entry(tipoEjercicio).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTipoEjercicio(int id)
-    {
-        var tipoEjercicio = await _context.Tipo_Ejercicio.FindAsync(id);
-        if (tipoEjercicio == null)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Tipo_Ejercicio>> GetTipoEjercicio(int id)
         {
-            return NotFound();
+            var tipoEjercicio = await _context.Tipo_Ejercicio.FindAsync(id);
+
+            if (tipoEjercicio == null)
+            {
+                return NotFound();
+            }
+
+            return tipoEjercicio;
         }
 
-        _context.Tipo_Ejercicio.Remove(tipoEjercicio);
-        await _context.SaveChangesAsync();
+        [HttpPost]
+        public async Task<ActionResult<Tipo_Ejercicio>> PostTipoEjercicio(Tipo_Ejercicio tipoEjercicio)
+        {
+            _context.Tipo_Ejercicio.Add(tipoEjercicio);
+            await _context.SaveChangesAsync();
 
-        return NoContent();
+            return CreatedAtAction(nameof(GetTipoEjercicio), new { id = tipoEjercicio.Codigo }, tipoEjercicio);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTipoEjercicio(int id, Tipo_Ejercicio tipoEjercicio)
+        {
+            if (id != tipoEjercicio.Codigo)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(tipoEjercicio).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTipoEjercicio(int id)
+        {
+            var tipoEjercicio = await _context.Tipo_Ejercicio.FindAsync(id);
+            if (tipoEjercicio == null)
+            {
+                return NotFound();
+            }
+
+            _context.Tipo_Ejercicio.Remove(tipoEjercicio);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
