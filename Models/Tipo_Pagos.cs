@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
 
 namespace gimnasio_web_api.Models
 {
@@ -9,11 +8,12 @@ namespace gimnasio_web_api.Models
     {
         [Key]
         [StringLength(2)]
-        public string CodigoPago { get; set; }
+        [Required]
+        public string CodigoPago { get; set; } = null!;
 
         [Required]
         [StringLength(100)]
-        public string Descripcion { get; set; }
+        public string Descripcion { get; set; } = null!;
 
         [Required]
         [Range(0, double.MaxValue)]

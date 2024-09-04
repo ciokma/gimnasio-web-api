@@ -3,76 +3,79 @@ using Microsoft.EntityFrameworkCore;
 using gimnasio_web_api.Data;
 using gimnasio_web_api.Models;
 
-[Route("api/[controller]")]
-[ApiController]
-public class Tipo_PagosController : ControllerBase
+namespace gimnasio_web_api.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public Tipo_PagosController(AppDbContext context)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class Tipo_PagosController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Tipo_Pagos>>> GetTipoPagos()
-    {
-        return await _context.Tipo_Pagos.ToListAsync();
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Tipo_Pagos>> GetTipoPago(string id)
-    {
-        var tipoPago = await _context.Tipo_Pagos.FindAsync(id);
-
-        if (tipoPago == null)
+        public Tipo_PagosController(AppDbContext context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        return tipoPago;
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<Tipo_Pagos>> PostTipoPago(Tipo_Pagos tipoPago)
-    {
-        if (!ModelState.IsValid)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Tipo_Pagos>>> GetTipoPagos()
         {
-            return BadRequest(ModelState);
+            return await _context.Tipo_Pagos.ToListAsync();
         }
 
-        _context.Tipo_Pagos.Add(tipoPago);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetTipoPago), new { id = tipoPago.CodigoPago }, tipoPago);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutTipoPago(string id, Tipo_Pagos tipoPago)
-    {
-        if (id != tipoPago.CodigoPago)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Tipo_Pagos>> GetTipoPago(string id)
         {
-            return BadRequest();
+            var tipoPago = await _context.Tipo_Pagos.FindAsync(id);
+
+            if (tipoPago == null)
+            {
+                return NotFound();
+            }
+
+            return tipoPago;
         }
 
-        _context.Entry(tipoPago).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTipoPago(string id)
-    {
-        var tipoPago = await _context.Tipo_Pagos.FindAsync(id);
-        if (tipoPago == null)
+        [HttpPost]
+        public async Task<ActionResult<Tipo_Pagos>> PostTipoPago(Tipo_Pagos tipoPago)
         {
-            return NotFound();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.Tipo_Pagos.Add(tipoPago);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetTipoPago), new { id = tipoPago.CodigoPago }, tipoPago);
         }
 
-        _context.Tipo_Pagos.Remove(tipoPago);
-        await _context.SaveChangesAsync();
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTipoPago(string id, Tipo_Pagos tipoPago)
+        {
+            if (id != tipoPago.CodigoPago)
+            {
+                return BadRequest();
+            }
 
-        return NoContent();
+            _context.Entry(tipoPago).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTipoPago(string id)
+        {
+            var tipoPago = await _context.Tipo_Pagos.FindAsync(id);
+            if (tipoPago == null)
+            {
+                return NotFound();
+            }
+
+            _context.Tipo_Pagos.Remove(tipoPago);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

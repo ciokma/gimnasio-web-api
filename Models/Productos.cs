@@ -12,7 +12,7 @@ namespace gimnasio_web_api.Models
         
         [Required]
         [StringLength(50)]
-        public string Descripcion { get; set; }
+        public string Descripcion { get; set; } = null!;
 
         [Required]
         [Column(TypeName = "decimal(10,2)")]

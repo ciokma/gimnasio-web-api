@@ -35,7 +35,7 @@ namespace gimnasio_web_api.Models
 
         [StringLength(150)]
         public string? Observaciones { get; set; }
-
+        [JsonIgnore]
         public ICollection<Fechas_Usuario>? FechasUsuario { get; set; }
 
         public Usuarios()

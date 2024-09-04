@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using gimnasio_web_api.Data;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace gimnasio_web_api
 {
@@ -17,7 +18,11 @@ namespace gimnasio_web_api
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                });
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

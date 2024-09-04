@@ -42,7 +42,7 @@ namespace gimnasioNet.Controllers
                     f.FechaVencimiento,
                     Usuario = new
                     {
-                        f.Usuario.Codigo,
+                        f.Usuario!.Codigo,
                         f.Usuario.Nombres,
                         f.Usuario.Apellidos,
                         f.Usuario.Telefono,
@@ -83,7 +83,7 @@ namespace gimnasioNet.Controllers
                 fechasUsuario.FechaVencimiento,
                 Usuario = new
                 {
-                    fechasUsuario.Usuario.Codigo,
+                    fechasUsuario.Usuario!.Codigo,
                     fechasUsuario.Usuario.Nombres,
                     fechasUsuario.Usuario.Apellidos,
                     fechasUsuario.Usuario.Telefono,
@@ -98,8 +98,7 @@ namespace gimnasioNet.Controllers
         }
 
         // POST: api/Fechas_Usuario
-
-[HttpPost]
+        [HttpPost]
         public async Task<ActionResult<Fechas_Usuario>> PostFechasUsuario([FromBody] Fechas_Usuario fechasUsuario)
         {
             if (!ModelState.IsValid)
@@ -107,7 +106,6 @@ namespace gimnasioNet.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Verifica que UsuarioId esté presente y sea válido
             var usuario = await _context.Usuarios.FindAsync(fechasUsuario.UsuarioId);
             if (usuario == null)
             {
@@ -115,7 +113,6 @@ namespace gimnasioNet.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Verifica fechas
             if (fechasUsuario.FechaPago > fechasUsuario.FechaVencimiento)
             {
                 ModelState.AddModelError("FechaPago", "La fecha de pago no puede ser mayor que la fecha de vencimiento.");
@@ -124,8 +121,7 @@ namespace gimnasioNet.Controllers
 
             try
             {
-                // Asocia el usuario y agrega la nueva entrada
-                fechasUsuario.Usuario = usuario; // Relacionar con el usuario encontrado
+                fechasUsuario.Usuario = usuario;
                 _context.Fechas_Usuarios.Add(fechasUsuario);
                 await _context.SaveChangesAsync();
                 return CreatedAtAction(nameof(GetFechasUsuario), new { id = fechasUsuario.Id }, fechasUsuario);
@@ -135,7 +131,6 @@ namespace gimnasioNet.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
         }
-
 
         // DELETE: api/Fechas_Usuario/5
         [HttpDelete("{id}")]
