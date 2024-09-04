@@ -17,5 +17,6 @@ namespace gimnasio_web_api.Data
         public DbSet<Fechas_Usuario> Fechas_Usuarios { get; set; }
         public DbSet<Tipo_Pagos> Tipo_Pagos { get; set; }
         public DbSet<Tipo_Ejercicio> Tipo_Ejercicio { get; set; }
+        public DbSet<Producto> Producto { get; set; } = default!;
     }
 }
