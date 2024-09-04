@@ -97,8 +97,6 @@ namespace gimnasioNet.Controllers
         }
 
         // POST: api/Fechas_Usuario
-        // POST: api/Fechas_Usuario
-// Fechas_UsuarioController.cs
 
 [HttpPost]
         public async Task<ActionResult<Fechas_Usuario>> PostFechasUsuario([FromBody] Fechas_Usuario fechasUsuario)

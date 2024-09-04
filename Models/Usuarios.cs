@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 
 [Table("usuarios")]
 public class Usuarios
@@ -8,24 +9,24 @@ public class Usuarios
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Codigo { get; set; }
 
-    [Required]
+    [JsonRequired]
     [StringLength(50)]
-    public string Nombres { get; set; }
+    public required string Nombres { get; set; }
 
-    [Required]
+    [JsonRequired]
     [StringLength(50)]
-    public string Apellidos { get; set; }
+    public required string Apellidos { get; set; }
 
-    [Required]
+    [JsonRequired]
     [StringLength(15)]
-    public string Telefono { get; set; }
+    public required string Telefono { get; set; }
 
     public string? Foto { get; set; }
-    
+
     [Column(TypeName = "DATE")]
     public DateTime? FechaIngreso { get; set; }
 
-    [Required]
+    [JsonRequired]
     public bool Activo { get; set; }
 
     [StringLength(150)]
