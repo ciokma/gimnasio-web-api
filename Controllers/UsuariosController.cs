@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using gimnasio_web_api.Data;
 using gimnasio_web_api.Models;
+using gimnasio_web_api.Repositories;
 
 namespace gimnasioNet.Controllers
 {
@@ -9,29 +10,33 @@ namespace gimnasioNet.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        //private readonly AppDbContext _context;
         private readonly string _imagePath;
         private readonly string _defaultImageName = "Default.png";
 
-        public UsuariosController(AppDbContext context)
+        //new changes
+        private readonly IRepository<Usuarios> _repository;
+
+        public UsuariosController(IRepository<Usuarios> repository)
         {
-            _context = context;
+            _repository = repository;
             _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
         }
 
         // GET: api/Usuarios
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Usuarios>>> GetUsuarios()
+        public async Task<List<Usuarios>> GetUsuarios()
         {
-            return await _context.Usuarios.ToListAsync();
+            //return await _context.Usuarios.ToListAsync();
+            return (List<Usuarios>)await _repository.GetAllAsync();
         }
 
         // GET: api/Usuarios/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Usuarios>> GetUsuarios(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-
+            //var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = await _repository.GetByIdAsync(id);
             if (usuario == null)
             {
                 return NotFound();
@@ -49,7 +54,8 @@ namespace gimnasioNet.Controllers
                 return BadRequest($"El ID del usuario no coincide: {id} se esperaba {usuarios.Codigo}.");
             }
 
-            var existingUser = await _context.Usuarios.FindAsync(id);
+            //var existingUser = await _context.Usuarios.FindAsync(id);
+            var existingUser = await _repository.GetByIdAsync(id);
             if (existingUser == null)
             {
                 return NotFound();
@@ -87,7 +93,8 @@ namespace gimnasioNet.Controllers
 
             try
             {
-                await _context.SaveChangesAsync();
+                //await _context.SaveChangesAsync();
+                await _repository.UpdateAsync(existingUser);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -138,11 +145,12 @@ namespace gimnasioNet.Controllers
                 usuario.Foto = newFileName;
             }
 
-            _context.Usuarios.Add(usuario);
+            //_context.Usuarios.Add(usuario);
 
             try
             {
-                await _context.SaveChangesAsync();
+                //await _context.SaveChangesAsync();
+                await _repository.AddAsync(usuario);
             }
             catch (DbUpdateException ex)
             {
@@ -160,7 +168,8 @@ namespace gimnasioNet.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUsuarios(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            //var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = await _repository.GetByIdAsync(id);
             if (usuario == null)
             {
                 return NotFound();
@@ -175,15 +184,15 @@ namespace gimnasioNet.Controllers
                 }
             }
 
-            _context.Usuarios.Remove(usuario);
-            await _context.SaveChangesAsync();
+            await _repository.DeleteAsync(usuario.Codigo);
 
-            return NoContent();
+            return Ok();
         }
-
+        /*
         private bool UsuariosExists(int id)
         {
             return _context.Usuarios.Any(e => e.Codigo == id);
         }
+        */
     }
 }
