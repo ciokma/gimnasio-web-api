@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gimnasio-web-api", "gimnasio-web-api.csproj", "{70DBFF0D-6972-4CC4-AF3B-802A161F27A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gimnasio_web_api.Tests", "..\gimnasio_web_api.Tests\gimnasio_web_api.Tests.csproj", "{A6DB4C7E-E1DA-41E8-ACBF-6EBCDE749D0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70DBFF0D-6972-4CC4-AF3B-802A161F27A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70DBFF0D-6972-4CC4-AF3B-802A161F27A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70DBFF0D-6972-4CC4-AF3B-802A161F27A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70DBFF0D-6972-4CC4-AF3B-802A161F27A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6DB4C7E-E1DA-41E8-ACBF-6EBCDE749D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6DB4C7E-E1DA-41E8-ACBF-6EBCDE749D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6DB4C7E-E1DA-41E8-ACBF-6EBCDE749D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6DB4C7E-E1DA-41E8-ACBF-6EBCDE749D0C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5A71DC57-7E6E-4ECF-95A6-911FFD0AD23A}
+	EndGlobalSection
+EndGlobal
