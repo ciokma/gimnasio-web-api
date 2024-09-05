@@ -1,37 +1,56 @@
 # Visual Studio 2015 cache/options directory
-.vs/
+gimnasio-web-api/.vs/
 # JetBrains Rider
-.idea/
-*.sln.iml
+gimnasio-web-api/.idea/
+gimnasio-web-api/*.sln.iml
 
 # Archivos de compilación
-bin/
-obj/
+gimnasio-web-api/bin/
+gimnasio-web-api/obj/
 
 # Configuración específica de usuario
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
+gimnasio-web-api/*.suo
+gimnasio-web-api/*.user
+gimnasio-web-api/*.userosscache
+gimnasio-web-api/*.sln.docstates
 
 # Paquetes de NuGet
-packages/
+gimnasio-web-api/packages/
 
 # Archivos de logs
-*.log
+gimnasio-web-api/*.log
 
 # Configuración local del entorno
-appsettings.Development.json
-appsettings.Local.json
+gimnasio-web-api/appsettings.Development.json
+gimnasio-web-api/appsettings.Local.json
 
 # Archivos temporales de Visual Studio Code
-.vscode/
+gimnasio-web-api/.vscode/
 
 # Directorios de dependencias de Node.js (si usas npm/yarn para frontend)
-node_modules/
+gimnasio-web-api/node_modules/
 
 # Archivos de resultados de pruebas
-TestResults/
+gimnasio-web-api/TestResults/
 
 # Archivos de publicación
-publish/
+gimnasio-web-api/publish/
+
+# Proyecto de pruebas unitarias - gimnasio_web_api.Tests
+
+# Archivos de compilación de pruebas
+gimnasio_web_api.Tests/bin/
+gimnasio_web_api.Tests/obj/
+
+# Resultados de pruebas
+gimnasio_web_api.Tests/TestResults/
+gimnasio_web_api.Tests/*.trx
+gimnasio_web_api.Tests/coverage/
+
+# Archivos generados por herramientas de cobertura de código
+gimnasio_web_api.Tests/coverage.opencover.xml
+gimnasio_web_api.Tests/coverage.cobertura.xml
+gimnasio_web_api.Tests/lcov-report/
+
+# Paquetes NuGet del proyecto de pruebas
+gimnasio_web_api.Tests/packages/
