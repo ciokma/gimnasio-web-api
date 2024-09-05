@@ -41,8 +41,8 @@ jobs:
         working-directory: ./gimnasio-web-api
 
       - name: Test with the dotnet CLI
-        run: dotnet test ../gimnasio_web_api.Tests/gimnasio_web_api.Tests.csproj --no-restore
-        working-directory: ./gimnasio-web-api
+        run: dotnet test gimnasio_web_api.Tests.csproj --no-restore
+        working-directory: ./gimnasio_web_api.Tests
 
       - name: Package
         run: dotnet publish gimnasio-web-api.csproj --configuration Release --no-restore --output ./output
