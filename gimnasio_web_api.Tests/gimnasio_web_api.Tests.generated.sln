@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gimnasio_web_api.Tests", "gimnasio_web_api.Tests.csproj", "{DDAF86BE-98FE-4C84-B1E3-495B84FFA33A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DDAF86BE-98FE-4C84-B1E3-495B84FFA33A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDAF86BE-98FE-4C84-B1E3-495B84FFA33A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDAF86BE-98FE-4C84-B1E3-495B84FFA33A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDAF86BE-98FE-4C84-B1E3-495B84FFA33A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4B372D9-86B9-44D2-93A3-72407ADD4450}
+	EndGlobalSection
+EndGlobal
