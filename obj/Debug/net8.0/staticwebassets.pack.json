@@ -1,0 +1,49 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\Otro\\Gimnasio\\Definitivo\\Backend\\gimnasio-web-api\\wwwroot\\Images\\0c8fcf35-835a-4563-bd43-0c45caa644ca.png",
+      "PackagePath": "staticwebassets\\Images\\0c8fcf35-835a-4563-bd43-0c45caa644ca.png"
+    },
+    {
+      "Id": "D:\\Otro\\Gimnasio\\Definitivo\\Backend\\gimnasio-web-api\\wwwroot\\Images\\3dfecf2b-016a-4220-b72b-ddf823de29cd.png",
+      "PackagePath": "staticwebassets\\Images\\3dfecf2b-016a-4220-b72b-ddf823de29cd.png"
+    },
+    {
+      "Id": "D:\\Otro\\Gimnasio\\Definitivo\\Backend\\gimnasio-web-api\\wwwroot\\Images\\5edc990a-769f-47f9-9e19-0b7b7b40fdfd.png",
+      "PackagePath": "staticwebassets\\Images\\5edc990a-769f-47f9-9e19-0b7b7b40fdfd.png"
+    },
+    {
+      "Id": "D:\\Otro\\Gimnasio\\Definitivo\\Backend\\gimnasio-web-api\\wwwroot\\Images\\70c73cbd-150b-488e-adde-8c3a115ae47e.png",
+      "PackagePath": "staticwebassets\\Images\\70c73cbd-150b-488e-adde-8c3a115ae47e.png"
+    },
+    {
+      "Id": "D:\\Otro\\Gimnasio\\Definitivo\\Backend\\gimnasio-web-api\\wwwroot\\Images\\Default.png",
+      "PackagePath": "staticwebassets\\Images\\Default.png"
+    },
+    {
+      "Id": "D:\\Otro\\Gimnasio\\Definitivo\\Backend\\gimnasio-web-api\\wwwroot\\Images\\a3bc5fd2-3d27-4cf3-8c5c-34ff1e94705f.jpeg",
+      "PackagePath": "staticwebassets\\Images\\a3bc5fd2-3d27-4cf3-8c5c-34ff1e94705f.jpeg"
+    },
+    {
+      "Id": "D:\\Otro\\Gimnasio\\Definitivo\\Backend\\gimnasio-web-api\\wwwroot\\Images\\f8f33af8-cfa3-43c5-ba18-5737c27ccf34.png",
+      "PackagePath": "staticwebassets\\Images\\f8f33af8-cfa3-43c5-ba18-5737c27ccf34.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.gimnasio-web-api.props",
+      "PackagePath": "build\\gimnasio-web-api.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.gimnasio-web-api.props",
+      "PackagePath": "buildMultiTargeting\\gimnasio-web-api.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.gimnasio-web-api.props",
+      "PackagePath": "buildTransitive\\gimnasio-web-api.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.gimnasio-web-api.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
