@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using gimnasio_web_api.Models;
+using gimnasio_web_api.Repositories;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using gimnasio_web_api.Data;
-using gimnasio_web_api.Models;
 
 namespace gimnasio_web_api.Controllers
 {
@@ -11,41 +10,51 @@ namespace gimnasio_web_api.Controllers
     [ApiController]
     public class Tipo_EjercicioController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IRepository<Tipo_Ejercicio> _repository;
 
-        public Tipo_EjercicioController(AppDbContext context)
+        public Tipo_EjercicioController(IRepository<Tipo_Ejercicio> repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
+        // GET: api/Tipo_Ejercicio
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tipo_Ejercicio>>> GetTipoEjercicios()
         {
-            return await _context.Tipo_Ejercicio.ToListAsync();
+            var tipoEjercicios = await _repository.GetAllAsync();
+            return Ok(tipoEjercicios);
         }
 
+        // GET: api/Tipo_Ejercicio/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Tipo_Ejercicio>> GetTipoEjercicio(int id)
         {
-            var tipoEjercicio = await _context.Tipo_Ejercicio.FindAsync(id);
-
-            if (tipoEjercicio == null)
+            try
+            {
+                var tipoEjercicio = await _repository.GetByIdAsync(id);
+                return Ok(tipoEjercicio);
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-
-            return tipoEjercicio;
         }
 
+        // POST: api/Tipo_Ejercicio
         [HttpPost]
         public async Task<ActionResult<Tipo_Ejercicio>> PostTipoEjercicio(Tipo_Ejercicio tipoEjercicio)
         {
-            _context.Tipo_Ejercicio.Add(tipoEjercicio);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _repository.AddAsync(tipoEjercicio);
 
             return CreatedAtAction(nameof(GetTipoEjercicio), new { id = tipoEjercicio.Codigo }, tipoEjercicio);
         }
 
+        // PUT: api/Tipo_Ejercicio/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTipoEjercicio(int id, Tipo_Ejercicio tipoEjercicio)
         {
@@ -54,23 +63,30 @@ namespace gimnasio_web_api.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(tipoEjercicio).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTipoEjercicio(int id)
-        {
-            var tipoEjercicio = await _context.Tipo_Ejercicio.FindAsync(id);
-            if (tipoEjercicio == null)
+            try
+            {
+                await _repository.UpdateAsync(tipoEjercicio);
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
 
-            _context.Tipo_Ejercicio.Remove(tipoEjercicio);
-            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // DELETE: api/Tipo_Ejercicio/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTipoEjercicio(int id)
+        {
+            try
+            {
+                await _repository.DeleteAsync(id);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

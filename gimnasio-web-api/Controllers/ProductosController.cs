@@ -16,18 +16,18 @@ namespace gimnasio_web_api.Controllers
     public class ProductosController : ControllerBase
     {
         //private readonly AppDbContext _context;
-        private readonly IRepository<Usuarios> _repository;
+        private readonly IRepository<Producto> _repository;
         public ProductosController(IRepository<Producto> repository)
-        {
         {
             _repository = repository;
         }
 
         // GET: api/Productos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Producto>>> GetProducto([FromQuery] int skip = 0, [FromQuery] int take = 10)
+        public async Task<ActionResult<IEnumerable<Producto>>> GetTipoPagos()
         {
-            return Ok(await _repository.GetPagedAsync(skip, take));
+            var producto = await _repository.GetAllAsync();
+            return Ok(producto);
         }
 
         // GET: api/Productos/5
@@ -78,7 +78,7 @@ namespace gimnasio_web_api.Controllers
         {
             await _repository.AddAsync(producto);
 
-            return CreatedAtAction("GetProducto", new { id = producto.CodigoProducto }, producto);
+            return CreatedAtAction(nameof(GetProducto), new { id = producto.CodigoProducto }, producto);
         }
 
 

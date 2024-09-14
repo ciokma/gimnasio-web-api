@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using gimnasio_web_api.Data;
 using gimnasio_web_api.Models;
+using gimnasio_web_api.Repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace gimnasio_web_api.Controllers
 {
@@ -9,32 +10,37 @@ namespace gimnasio_web_api.Controllers
     [ApiController]
     public class Tipo_PagosController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IRepository<Tipo_Pagos> _repository;
 
-        public Tipo_PagosController(AppDbContext context)
+        public Tipo_PagosController(IRepository<Tipo_Pagos> repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
+        // GET: api/Tipo_Pagos
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tipo_Pagos>>> GetTipoPagos()
         {
-            return await _context.Tipo_Pagos.ToListAsync();
+            var tipoPagos = await _repository.GetAllAsync();
+            return Ok(tipoPagos);
         }
 
+        // GET: api/Tipo_Pagos/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Tipo_Pagos>> GetTipoPago(string id)
+        public async Task<ActionResult<Tipo_Pagos>> GetTipoPago(int id)
         {
-            var tipoPago = await _context.Tipo_Pagos.FindAsync(id);
-
-            if (tipoPago == null)
+            try
+            {
+                var tipoPago = await _repository.GetByIdAsync(id);
+                return Ok(tipoPago);
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-
-            return tipoPago;
         }
 
+        // POST: api/Tipo_Pagos
         [HttpPost]
         public async Task<ActionResult<Tipo_Pagos>> PostTipoPago(Tipo_Pagos tipoPago)
         {
@@ -43,37 +49,44 @@ namespace gimnasio_web_api.Controllers
                 return BadRequest(ModelState);
             }
 
-            _context.Tipo_Pagos.Add(tipoPago);
-            await _context.SaveChangesAsync();
+            await _repository.AddAsync(tipoPago);
 
             return CreatedAtAction(nameof(GetTipoPago), new { id = tipoPago.CodigoPago }, tipoPago);
         }
 
+        // PUT: api/Tipo_Pagos/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTipoPago(string id, Tipo_Pagos tipoPago)
+        public async Task<IActionResult> PutTipoPago(int id, Tipo_Pagos tipoPago)
         {
-            if (id != tipoPago.CodigoPago)
+            if (id != int.Parse(tipoPago.CodigoPago))
             {
                 return BadRequest();
             }
 
-            _context.Entry(tipoPago).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTipoPago(string id)
-        {
-            var tipoPago = await _context.Tipo_Pagos.FindAsync(id);
-            if (tipoPago == null)
+            try
+            {
+                await _repository.UpdateAsync(tipoPago);
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
 
-            _context.Tipo_Pagos.Remove(tipoPago);
-            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // DELETE: api/Tipo_Pagos/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTipoPago(int id)
+        {
+            try
+            {
+                await _repository.DeleteAsync(id);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

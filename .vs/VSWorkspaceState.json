@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.github\\workflows",
+    "\\gimnasio-web-api",
+    "\\gimnasio-web-api\\Controllers",
+    "\\gimnasio-web-api\\Models",
+    "\\gimnasio-web-api\\Repositories"
+  ],
+  "SelectedNode": "\\gimnasio-web-api\\README.md",
+  "PreviewInSolutionExplorer": false
+}
