@@ -46,7 +46,7 @@ namespace gimnasio_web_api
             });
 
             //Inyectando dependencias
-            builder.Services.AddScoped<IRepository<Usuarios>, UsuarioRepository>();
+            builder.Services.AddScoped<IRepository<Usuarios, int>, UsuarioRepository>();
 
             var app = builder.Build();
 

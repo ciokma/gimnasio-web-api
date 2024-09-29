@@ -15,9 +15,9 @@ namespace gimnasioNet.Controllers
         private readonly string _defaultImageName = "Default.png";
 
         //new changes
-        private readonly IRepository<Usuarios> _repository;
+        private readonly IRepository<Usuarios, int> _repository;
 
-        public UsuariosController(IRepository<Usuarios> repository)
+        public UsuariosController(IRepository<Usuarios, int> repository)
         {
             _repository = repository;
             _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
@@ -107,7 +107,6 @@ namespace gimnasioNet.Controllers
 
             return NoContent();
         }
-
 
         // POST: api/Usuarios
         [HttpPost]

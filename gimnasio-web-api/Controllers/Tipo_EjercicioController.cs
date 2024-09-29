@@ -10,14 +10,13 @@ namespace gimnasio_web_api.Controllers
     [ApiController]
     public class Tipo_EjercicioController : ControllerBase
     {
-        private readonly IRepository<Tipo_Ejercicio> _repository;
+        private readonly IRepository<Tipo_Ejercicio, int> _repository;
 
-        public Tipo_EjercicioController(IRepository<Tipo_Ejercicio> repository)
+        public Tipo_EjercicioController(IRepository<Tipo_Ejercicio, int> repository)
         {
             _repository = repository;
         }
 
-        // GET: api/Tipo_Ejercicio
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tipo_Ejercicio>>> GetTipoEjercicios()
         {
@@ -25,7 +24,6 @@ namespace gimnasio_web_api.Controllers
             return Ok(tipoEjercicios);
         }
 
-        // GET: api/Tipo_Ejercicio/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Tipo_Ejercicio>> GetTipoEjercicio(int id)
         {
@@ -40,7 +38,6 @@ namespace gimnasio_web_api.Controllers
             }
         }
 
-        // POST: api/Tipo_Ejercicio
         [HttpPost]
         public async Task<ActionResult<Tipo_Ejercicio>> PostTipoEjercicio(Tipo_Ejercicio tipoEjercicio)
         {
@@ -50,11 +47,9 @@ namespace gimnasio_web_api.Controllers
             }
 
             await _repository.AddAsync(tipoEjercicio);
-
             return CreatedAtAction(nameof(GetTipoEjercicio), new { id = tipoEjercicio.Codigo }, tipoEjercicio);
         }
 
-        // PUT: api/Tipo_Ejercicio/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTipoEjercicio(int id, Tipo_Ejercicio tipoEjercicio)
         {
@@ -75,7 +70,6 @@ namespace gimnasio_web_api.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Tipo_Ejercicio/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTipoEjercicio(int id)
         {

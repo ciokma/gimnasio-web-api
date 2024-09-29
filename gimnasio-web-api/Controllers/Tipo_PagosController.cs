@@ -10,14 +10,13 @@ namespace gimnasio_web_api.Controllers
     [ApiController]
     public class Tipo_PagosController : ControllerBase
     {
-        private readonly IRepository<Tipo_Pagos> _repository;
+        private readonly IRepository<Tipo_Pagos, string> _repository;
 
-        public Tipo_PagosController(IRepository<Tipo_Pagos> repository)
+        public Tipo_PagosController(IRepository<Tipo_Pagos, string> repository)
         {
             _repository = repository;
         }
 
-        // GET: api/Tipo_Pagos
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tipo_Pagos>>> GetTipoPagos()
         {
@@ -25,9 +24,8 @@ namespace gimnasio_web_api.Controllers
             return Ok(tipoPagos);
         }
 
-        // GET: api/Tipo_Pagos/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Tipo_Pagos>> GetTipoPago(int id)
+        public async Task<ActionResult<Tipo_Pagos>> GetTipoPago(string id)
         {
             try
             {
@@ -40,7 +38,6 @@ namespace gimnasio_web_api.Controllers
             }
         }
 
-        // POST: api/Tipo_Pagos
         [HttpPost]
         public async Task<ActionResult<Tipo_Pagos>> PostTipoPago(Tipo_Pagos tipoPago)
         {
@@ -50,15 +47,13 @@ namespace gimnasio_web_api.Controllers
             }
 
             await _repository.AddAsync(tipoPago);
-
             return CreatedAtAction(nameof(GetTipoPago), new { id = tipoPago.CodigoPago }, tipoPago);
         }
 
-        // PUT: api/Tipo_Pagos/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTipoPago(int id, Tipo_Pagos tipoPago)
+        public async Task<IActionResult> PutTipoPago(string id, Tipo_Pagos tipoPago)
         {
-            if (id != int.Parse(tipoPago.CodigoPago))
+            if (id != tipoPago.CodigoPago)
             {
                 return BadRequest();
             }
@@ -75,9 +70,8 @@ namespace gimnasio_web_api.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Tipo_Pagos/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTipoPago(int id)
+        public async Task<IActionResult> DeleteTipoPago(string id)
         {
             try
             {
