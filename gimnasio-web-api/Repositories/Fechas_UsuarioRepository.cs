@@ -22,9 +22,14 @@ namespace gimnasio_web_api.Repositories
 
         public async Task<Fechas_Usuario> GetByIdAsync(int id)
         {
-            return await _context.Fechas_Usuarios.Include(f => f.Usuario).FirstOrDefaultAsync(f => f.Id == id)
-                ?? throw new KeyNotFoundException("El registro no fue encontrado.");
+            var result = await _context.Fechas_Usuarios.FindAsync(id);
+            if (result == null)
+            {
+                throw new KeyNotFoundException($"No se encontró un Fechas_Usuario con el ID {id}");
+            }
+            return result;
         }
+
 
         public async Task AddAsync(Fechas_Usuario entity)
         {
@@ -48,9 +53,10 @@ namespace gimnasio_web_api.Repositories
             }
         }
 
-        public async Task<Usuarios?> GetUsuarioByIdAsync(int usuarioId) // Ajustado a nullable
+        public async Task<Usuarios?> GetUsuarioByCodigoAsync(int usuarioCodigo)
         {
-            return await _context.Usuarios.FindAsync(usuarioId);
+            return await _context.Usuarios
+                                .FirstOrDefaultAsync(u => u.Codigo == usuarioCodigo);
         }
 
         public bool Exists(int id)

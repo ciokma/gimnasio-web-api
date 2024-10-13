@@ -48,7 +48,7 @@ namespace gimnasio_web_api
             //Inyectando dependencias
             builder.Services.AddScoped<IRepository<Usuarios, int>, UsuarioRepository>();
             builder.Services.AddScoped<IRepository<Producto, int>, ProductoRepository>();
-            //builder.Services.AddScoped<IRepository<Fechas_Usuario, int>, Fechas_UsuarioRepository>();
+            builder.Services.AddScoped<IRepository<Fechas_Usuario, int>, Fechas_UsuarioRepository>();
             builder.Services.AddScoped<IRepository<Tipo_Ejercicio, int>, Tipo_EjercicioRepository>();
             builder.Services.AddScoped<IRepository<Tipo_Pagos, string>, Tipo_PagoRepository>();
 
