@@ -10,6 +10,14 @@ dotnet-aspnet-codegenerator controller -name "NombreControlador"Controller -asyn
 ## Construir Proyecto
 dotnet build
 
+## Ejecutar Prubas
+cd gimnasio_web_api.Tests
+dotnet test gimnasio_web_api.Tests.csproj
+
+## Consultar Pruebas a Ejecutar
+cd gimnasio_web_api.Tests
+dotnet test --list-tests gimnasio_web_api.Tests.csproj
+
 ## Correr proyecto
 dotnet run
 

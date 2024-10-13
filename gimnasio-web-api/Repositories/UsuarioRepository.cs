@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace gimnasio_web_api.Repositories
 {
-    public class UsuarioRepository : IRepository<Usuarios>
+    public class UsuarioRepository : IRepository<Usuarios, int>
     {
         private readonly AppDbContext _context;
 
@@ -16,10 +16,11 @@ namespace gimnasio_web_api.Repositories
         {
             _context = context;
         }
+
         public async Task AddAsync(Usuarios entity)
         {
             await _context.Usuarios.AddAsync(entity);
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
@@ -29,8 +30,8 @@ namespace gimnasio_web_api.Repositories
             if (usuario == null)
             {
                 throw new KeyNotFoundException();
-   
             }
+
             _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
         }
@@ -46,10 +47,11 @@ namespace gimnasio_web_api.Repositories
 
             if (usuario == null)
             {
-               throw new KeyNotFoundException();
+                throw new KeyNotFoundException();
             }
             return usuario;
         }
+
         /// <summary>
         /// Actualiza una entidad usuario en base de datos
         /// </summary>
@@ -59,7 +61,6 @@ namespace gimnasio_web_api.Repositories
         {
             _context.Usuarios.Update(entity);
             await _context.SaveChangesAsync();
-
         }
     }
 }
