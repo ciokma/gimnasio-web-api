@@ -51,6 +51,7 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IRepository<Fechas_Usuario, int>, Fechas_UsuarioRepository>();
             builder.Services.AddScoped<IRepository<Tipo_Ejercicio, int>, Tipo_EjercicioRepository>();
             builder.Services.AddScoped<IRepository<Tipo_Pagos, string>, Tipo_PagoRepository>();
+            builder.Services.AddScoped<IRepository<Pago, int>, PagoRepository>();
 
             var app = builder.Build();
 
