@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using gimnasio_web_api.Models;
+using gimnasio_web_api.DTOs;
 using gimnasio_web_api.Repositories;
 using System.Collections.Generic;
 using System.Linq;
@@ -132,5 +133,18 @@ public class PagosController : ControllerBase
 
         await _repository.DeleteAsync(pago.CodigoPago);
         return Ok();
+    }
+    [HttpGet("usuarios")]
+    public async Task<ActionResult<List<UsuarioDto>>> GetUsuarios()
+    {
+        var usuarios = await _usuariosRepository.GetAllAsync();
+        var usuariosDto = usuarios.Select(u => new UsuarioDto
+        {
+            Codigo = u.Codigo,
+            Nombres = u.Nombres,
+            Apellidos = u.Apellidos
+        }).ToList();
+
+        return Ok(usuariosDto);
     }
 }
