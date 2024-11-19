@@ -1,3 +1,5 @@
+obj/
+bin/
 # Visual Studio 2015 cache/options directory
 gimnasio-web-api/.vs/
 # JetBrains Rider
@@ -7,6 +9,7 @@ gimnasio-web-api/*.sln.iml
 # Archivos de compilación
 gimnasio-web-api/bin/
 gimnasio-web-api/obj/
+
 
 # Configuración específica de usuario
 gimnasio-web-api/*.suo
