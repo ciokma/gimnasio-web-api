@@ -31,6 +31,10 @@ namespace gimnasio_web_api.Tests
             var db = CreateDbContext();
             var repository = new PagoRepository(db);
 
+            var usuario = new Usuarios { Codigo = 1, Nombres = "Usuario de prueba" };
+            await db.Usuarios.AddAsync(usuario);
+            await db.SaveChangesAsync();
+
             var pago = new Pago
             {
                 CodigoUsuario = 1,

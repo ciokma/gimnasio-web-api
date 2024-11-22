@@ -13,7 +13,7 @@ namespace gimnasio_web_api.Models
         public int CodigoPago { get; set; }
 
         [ForeignKey("CodigoUsuario")]
-        public Usuarios Usuario {get; set;} = new Usuarios();
+        public Usuarios? Usuario {get; set;}
         public int CodigoUsuario { get; set; }
 
         public int MesesPagados { get; set; }

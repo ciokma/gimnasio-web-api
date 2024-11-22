@@ -19,6 +19,11 @@ namespace gimnasio_web_api.Repositories
 
         public async Task AddAsync(Pago entity)
         {
+            var usuario = await _context.Usuarios.FindAsync(entity.CodigoUsuario);
+            if (usuario == null)
+            {
+                throw new Exception("El usuario con el código proporcionado no existe.");
+            }
             await _context.Pagos.AddAsync(entity);
             await _context.SaveChangesAsync();
         }

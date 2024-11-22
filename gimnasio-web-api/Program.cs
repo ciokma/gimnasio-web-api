@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using gimnasio_web_api.Repositories;
 using gimnasio_web_api.Models;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gimnasio_web_api
 {
@@ -44,7 +46,7 @@ namespace gimnasio_web_api
                               .AllowAnyMethod();
                     });
             });
-
+            
             //Inyectando dependencias
             builder.Services.AddScoped<IRepository<Usuarios, int>, UsuarioRepository>();
             builder.Services.AddScoped<IRepository<Producto, int>, ProductoRepository>();
@@ -52,6 +54,13 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IRepository<Tipo_Ejercicio, int>, Tipo_EjercicioRepository>();
             builder.Services.AddScoped<IRepository<Tipo_Pagos, string>, Tipo_PagoRepository>();
             builder.Services.AddScoped<IRepository<Pago, int>, PagoRepository>();
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File("Logs/myapp.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+            builder.Logging.AddSerilog();
 
             var app = builder.Build();
 
