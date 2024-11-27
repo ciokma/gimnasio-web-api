@@ -22,6 +22,10 @@ namespace gimnasio_web_api
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
+            /*var connectionString = builder.Configuration.GetConnectionString("gimnasio");
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23))));*/
+
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
                 {
@@ -56,11 +60,12 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IRepository<Pago, int>, PagoRepository>();
 
             Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
+                //.WriteTo.Console()
                 .WriteTo.File("Logs/myapp.log", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             builder.Logging.AddSerilog();
+
 
             var app = builder.Build();
 

@@ -58,4 +58,4 @@ gimnasio_web_api.Tests/lcov-report/
 # Paquetes NuGet del proyecto de pruebas
 gimnasio_web_api.Tests/packages/
 gimnasio-web-api/Logs
-gimnasio-web-api/gimnasio-web-api/wwwroot/Images
+gimnasio-web-api/wwwroot/Images/*.png

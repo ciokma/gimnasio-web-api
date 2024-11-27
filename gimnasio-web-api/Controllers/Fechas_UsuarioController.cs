@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using gimnasio_web_api.Data;
 using gimnasio_web_api.Models;
 using gimnasio_web_api.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace gimnasioNet.Controllers
 {
@@ -11,10 +12,11 @@ namespace gimnasioNet.Controllers
     public class Fechas_UsuarioController : ControllerBase
     {
         private readonly AppDbContext _context;
-
-        public Fechas_UsuarioController(AppDbContext context)
+        private readonly ILogger<Fechas_UsuarioController> _logger;
+        public Fechas_UsuarioController(AppDbContext context, ILogger<Fechas_UsuarioController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Fechas_Usuario
@@ -131,27 +133,6 @@ namespace gimnasioNet.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
-        }
-
-        // DELETE: api/Fechas_Usuario/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFechasUsuario(int id)
-        {
-            var fechasUsuario = await _context.Fechas_Usuarios.FindAsync(id);
-            if (fechasUsuario == null)
-            {
-                return NotFound();
-            }
-
-            _context.Fechas_Usuarios.Remove(fechasUsuario);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool FechasUsuarioExists(int id)
-        {
-            return _context.Fechas_Usuarios.Any(e => e.Id == id);
         }
     }
 }
