@@ -168,88 +168,68 @@ public class PagosController : ControllerBase
         return Ok();
     }
     [HttpPut("EditFechas_Usuario")]
-        public async Task<IActionResult> PutFechasUsuario([FromBody] Fechas_Usuario fechasUsuario)
-        {
-            // Log detallado de la entrada
-            _logger.LogInformation("Iniciando la actualización de Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}", fechasUsuario.UsuarioId, fechasUsuario.FechaPago);
-
-            // Validación: Verificar si el UsuarioId existe
-            _logger.LogInformation("Buscando el usuario con ID {UsuarioId} en la base de datos...", fechasUsuario.UsuarioId);
-            var usuario = await _context.Usuarios.FindAsync(fechasUsuario.UsuarioId);
-            
-            if (usuario == null)
-            {
-                _logger.LogWarning("Usuario con ID {UsuarioId} no encontrado", fechasUsuario.UsuarioId);
-                ModelState.AddModelError("UsuarioId", "UsuarioId es requerido y debe ser un usuario existente.");
-                return BadRequest(ModelState);  // Retorna un BadRequest con detalles
-            }
-            else
-            {
-                _logger.LogInformation("Usuario encontrado con ID {UsuarioId}", fechasUsuario.UsuarioId);
-            }
-
-            // Validación: Verificar si la FechaPago no es mayor que la FechaVencimiento
-            _logger.LogInformation("Verificando si la FechaPago ({FechaPago}) es mayor que la FechaVencimiento ({FechaVencimiento})", fechasUsuario.FechaPago, fechasUsuario.FechaVencimiento);
-            if (fechasUsuario.FechaPago > fechasUsuario.FechaVencimiento)
-            {
-                _logger.LogWarning("La FechaPago ({FechaPago}) no puede ser mayor que la FechaVencimiento ({FechaVencimiento})", fechasUsuario.FechaPago, fechasUsuario.FechaVencimiento);
-                ModelState.AddModelError("FechaPago", "La fecha de pago no puede ser mayor que la fecha de vencimiento.");
-                return BadRequest(ModelState);  // Retorna un BadRequest con detalles
-            }
-            else
-            {
-                _logger.LogInformation("Las fechas son válidas. FechaPago no es mayor que FechaVencimiento.");
-            }
-
-            // Buscar el registro de Fechas_Usuario usando UsuarioId y FechaPago
-            _logger.LogInformation("Buscando el registro de Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}...", fechasUsuario.UsuarioId, fechasUsuario.FechaPago);
-            var existingFechaUsuario = await _context.Fechas_Usuarios
-                .Where(f => f.UsuarioId == fechasUsuario.UsuarioId && f.FechaPago == fechasUsuario.FechaPago)
-                .FirstOrDefaultAsync();
-
-            if (existingFechaUsuario == null)
-            {
-                _logger.LogWarning("No se encontró el registro de Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}", fechasUsuario.UsuarioId, fechasUsuario.FechaPago);
-                return NotFound();  // Retorna un NotFound si no se encuentra el registro
-            }
-            else
-            {
-                _logger.LogInformation("Registro de Fechas_Usuario encontrado. Procediendo con la actualización.");
-            }
-
-            // Log detallado de los valores antes de la actualización
-            _logger.LogInformation("Datos antes de la actualización - FechaPagoA: {FechaPagoA}, FechaVencimiento: {FechaVencimiento}", existingFechaUsuario.FechaPagoA, existingFechaUsuario.FechaVencimiento);
-
-            // Actualizar la entidad Fechas_Usuario
-            existingFechaUsuario.FechaPagoA = fechasUsuario.FechaPagoA;
-            existingFechaUsuario.FechaVencimiento = fechasUsuario.FechaVencimiento;
-
-            try
-            {
-                _logger.LogInformation("Guardando los cambios en la base de datos...");
-                _context.Entry(existingFechaUsuario).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Fecha de usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago} actualizada correctamente", fechasUsuario.UsuarioId, fechasUsuario.FechaPago);
-                return Ok(existingFechaUsuario);  // Retorna un Ok con los datos actualizados
-            }
-            catch (Exception ex)
-            {
-                // Log de error detallado
-                _logger.LogError("Error al actualizar Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}: {errorMessage}", fechasUsuario.UsuarioId, fechasUsuario.FechaPago, ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });  // Retorna un Internal Server Error con el mensaje de la excepción
-            }
-        }
-    [HttpDelete("DeleteFechas_Usuario")]
-    public async Task<IActionResult> DeleteFechasUsuario([FromBody] Fechas_Usuario fechasUsuario)
+    public async Task<IActionResult> PutFechasUsuario([FromBody] Fechas_Usuario fechasUsuario)
     {
-        _logger.LogInformation("Iniciando la eliminación de Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}", fechasUsuario.UsuarioId, fechasUsuario.FechaPago);
-
         var usuario = await _context.Usuarios.FindAsync(fechasUsuario.UsuarioId);
         
         if (usuario == null)
         {
-            _logger.LogWarning("Usuario con ID {UsuarioId} no encontrado", fechasUsuario.UsuarioId);
+            ModelState.AddModelError("UsuarioId", "UsuarioId es requerido y debe ser un usuario existente.");
+            return BadRequest(ModelState);
+        }
+        else
+        {
+            _logger.LogInformation("Usuario encontrado con ID {UsuarioId}", fechasUsuario.UsuarioId);
+        }
+
+        if (fechasUsuario.FechaPago > fechasUsuario.FechaVencimiento)
+        {
+            ModelState.AddModelError("FechaPago", "La fecha de pago no puede ser mayor que la fecha de vencimiento.");
+            return BadRequest(ModelState);
+        }
+        else
+        {
+            _logger.LogInformation("Las fechas son válidas. FechaPago no es mayor que FechaVencimiento.");
+        }
+
+        var existingFechaUsuario = await _context.Fechas_Usuarios
+            .Where(f => f.UsuarioId == fechasUsuario.UsuarioId && f.FechaPago == fechasUsuario.FechaPago)
+            .FirstOrDefaultAsync();
+
+        if (existingFechaUsuario == null)
+        {
+            _logger.LogWarning("No se encontró el registro de Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}", fechasUsuario.UsuarioId, fechasUsuario.FechaPago);
+            return NotFound();
+        }
+        else
+        {
+            _logger.LogInformation("Registro de Fechas_Usuario encontrado. Procediendo con la actualización.");
+        }
+
+        existingFechaUsuario.FechaPagoA = fechasUsuario.FechaPagoA;
+        existingFechaUsuario.FechaVencimiento = fechasUsuario.FechaVencimiento;
+
+        try
+        {
+            _logger.LogInformation("Guardando los cambios en la base de datos...");
+            _context.Entry(existingFechaUsuario).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(existingFechaUsuario);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error al actualizar Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}: {errorMessage}", fechasUsuario.UsuarioId, fechasUsuario.FechaPago, ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });  // Retorna un Internal Server Error con el mensaje de la excepción
+        }
+        }
+    [HttpDelete("DeleteFechas_Usuario")]
+    public async Task<IActionResult> DeleteFechasUsuario([FromBody] Fechas_Usuario fechasUsuario)
+    {
+        var usuario = await _context.Usuarios.FindAsync(fechasUsuario.UsuarioId);
+        
+        if (usuario == null)
+        {
             ModelState.AddModelError("UsuarioId", "UsuarioId es requerido y debe ser un usuario existente.");
             return BadRequest(ModelState);
         }
@@ -263,21 +243,65 @@ public class PagosController : ControllerBase
             _logger.LogWarning("No se encontró el registro de Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}", fechasUsuario.UsuarioId, fechasUsuario.FechaPago);
             return NotFound();
         }
-        _logger.LogInformation("Registro de Fechas_Usuario encontrado. Procediendo con la eliminación.");
         _context.Fechas_Usuarios.Remove(existingFechaUsuario);
         
         try
         {
-            _logger.LogInformation("Eliminando el registro de Fechas_Usuario...");
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Fecha de usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago} eliminada correctamente", fechasUsuario.UsuarioId, fechasUsuario.FechaPago);
             return NoContent();
         }
         catch (Exception ex)
         {
             _logger.LogError("Error al eliminar Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}: {errorMessage}", fechasUsuario.UsuarioId, fechasUsuario.FechaPago, ex.Message);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });  // Retorna un Internal Server Error en caso de excepción
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+    }
+    [HttpGet("ultimo-pago-vigente")]
+    public async Task<ActionResult<object>> GetUltimoPagoVigente([FromQuery] int usuarioId)
+    {
+        try
+        {
+            var usuarioExiste = await _context.Usuarios
+                .AnyAsync(u => u.Codigo == usuarioId);
+
+            if (!usuarioExiste)
+            {
+                return NotFound($"El usuario con el ID {usuarioId} no existe.");
+            }
+
+            var fechasUsuarios = await _context.Fechas_Usuarios
+                .Where(f => f.UsuarioId == usuarioId)
+                .OrderByDescending(f => f.FechaPago)
+                .ToListAsync();
+
+            if (fechasUsuarios == null || !fechasUsuarios.Any())
+            {
+                return NotFound($"No se encontraron pagos para el usuario con ID {usuarioId}.");
+            }
+
+            var ultimoPago = fechasUsuarios.First();
+
+            if (ultimoPago.FechaVencimiento == null)
+            {
+                return BadRequest("La fecha de vencimiento del último pago es nula.");
+            }
+
+            var diasRestantes = (ultimoPago.FechaVencimiento.Value - DateTime.Now).Days;
+
+            var resultado = new
+            {
+                usuarioId = ultimoPago.UsuarioId,
+                ultimoPago.FechaPago,
+                ultimoPago.FechaVencimiento,
+                diasRestantes
+            };
+
+            return Ok(resultado);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
         }
     }
 }
