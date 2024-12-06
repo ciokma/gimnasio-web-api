@@ -28,5 +28,6 @@ namespace gimnasio_web_api.Models
 
         [StringLength(50)]
         public string DetallePago { get; set; } = string.Empty;
+        public bool IntervaloPago { get; set; } = false;
     }
 }

@@ -36,7 +36,8 @@ public class PagosController : ControllerBase
             p.MesesPagadosA, 
             p.FechaPago, 
             p.Monto, 
-            p.DetallePago
+            p.DetallePago,
+            p.IntervaloPago 
         )).ToList();
     }
 
@@ -56,7 +57,8 @@ public class PagosController : ControllerBase
             pago.MesesPagadosA, 
             pago.FechaPago, 
             pago.Monto, 
-            pago.DetallePago
+            pago.DetallePago,
+            pago.IntervaloPago 
         );
 
         return pagoDto;
@@ -82,6 +84,17 @@ public class PagosController : ControllerBase
 
         _logger.LogInformation("Usuario encontrado: {usuarioId}, {usuarioNombres}", usuario.Codigo, usuario.Nombres);
 
+        var pagoExistente = await _context.Pagos
+            .Where(p => p.CodigoUsuario == pagoDto.CodigoUsuario && p.FechaPago.Date == pagoDto.FechaPago.Date)
+            .FirstOrDefaultAsync();
+
+        if (pagoExistente != null)
+        {
+            _logger.LogWarning("El usuario {codigoUsuario} ya tiene un pago registrado para el día {fechaPago}", pagoDto.CodigoUsuario, pagoDto.FechaPago.Date);
+            return BadRequest("El usuario ya tiene un pago registrado para el día seleccionado.");
+        }
+        pagoDto.MesesPagadosA = (pagoDto.MesesPagadosA == 0) ? 0 : pagoDto.MesesPagadosA;
+        pagoDto.DetallePago = string.IsNullOrEmpty(pagoDto.DetallePago) ? "Sin comentario" : pagoDto.DetallePago;
         var pago = new Pago
         {
             CodigoUsuario = pagoDto.CodigoUsuario,
@@ -89,7 +102,8 @@ public class PagosController : ControllerBase
             MesesPagadosA = pagoDto.MesesPagadosA,
             FechaPago = pagoDto.FechaPago,
             Monto = pagoDto.Monto,
-            DetallePago = pagoDto.DetallePago
+            DetallePago = pagoDto.DetallePago,
+            IntervaloPago = pagoDto.IntervaloPago
         };
 
         try
@@ -110,6 +124,14 @@ public class PagosController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutPago(int id, [FromBody] PagoDto pagoDto)
     {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                        .Select(e => e.ErrorMessage)
+                                        .ToList();
+            _logger.LogWarning("Errores de validación: {Errors}", string.Join(", ", errors));
+            return BadRequest(ModelState);
+        }
         if (id != pagoDto.CodigoPago)
         {
             _logger.LogWarning("El ID del pago no coincide: {id} se esperaba {codigoPago}", id, pagoDto.CodigoPago);
@@ -134,10 +156,18 @@ public class PagosController : ControllerBase
 
         existingPago.CodigoUsuario = pagoDto.CodigoUsuario;
         existingPago.MesesPagados = pagoDto.MesesPagados;
-        existingPago.MesesPagadosA = pagoDto.MesesPagadosA;
+        if (pagoDto.MesesPagadosA == null)
+        {
+            existingPago.MesesPagadosA = 0;
+        }
+        else
+        {
+            existingPago.MesesPagadosA = pagoDto.MesesPagadosA;
+        }
         existingPago.FechaPago = pagoDto.FechaPago;
         existingPago.Monto = pagoDto.Monto;
         existingPago.DetallePago = pagoDto.DetallePago;
+        existingPago.IntervaloPago = pagoDto.IntervaloPago;
 
         try
         {
@@ -220,7 +250,7 @@ public class PagosController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError("Error al actualizar Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}: {errorMessage}", fechasUsuario.UsuarioId, fechasUsuario.FechaPago, ex.Message);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });  // Retorna un Internal Server Error con el mensaje de la excepción
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
         }
         }
     [HttpDelete("DeleteFechas_Usuario")]
@@ -258,7 +288,7 @@ public class PagosController : ControllerBase
         }
     }
     [HttpGet("ultimo-pago-vigente")]
-    public async Task<ActionResult<object>> GetUltimoPagoVigente([FromQuery] int usuarioId)
+    public async Task<ActionResult<object>> GetUltimoPagoVigente([FromQuery] int usuarioId, [FromQuery] bool esEdicion = false)
     {
         try
         {
@@ -280,20 +310,20 @@ public class PagosController : ControllerBase
                 return NotFound($"No se encontraron pagos para el usuario con ID {usuarioId}.");
             }
 
-            var ultimoPago = fechasUsuarios.First();
+            var pagoReferencia = esEdicion && fechasUsuarios.Count > 1 ? fechasUsuarios.Skip(1).First() : fechasUsuarios.First();
 
-            if (ultimoPago.FechaVencimiento == null)
+            if (pagoReferencia.FechaVencimiento == null)
             {
                 return BadRequest("La fecha de vencimiento del último pago es nula.");
             }
 
-            var diasRestantes = (ultimoPago.FechaVencimiento.Value - DateTime.Now).Days;
+            var diasRestantes = (pagoReferencia.FechaVencimiento.Value - DateTime.Now).Days;
 
             var resultado = new
             {
-                usuarioId = ultimoPago.UsuarioId,
-                ultimoPago.FechaPago,
-                ultimoPago.FechaVencimiento,
+                usuarioId = pagoReferencia.UsuarioId,
+                pagoReferencia.FechaPago,
+                pagoReferencia.FechaVencimiento,
                 diasRestantes
             };
 

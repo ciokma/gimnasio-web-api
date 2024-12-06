@@ -22,7 +22,7 @@ namespace gimnasio_web_api
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
-            /*var connectionString = builder.Configuration.GetConnectionString("gimnasio");
+            /*var connectionString = builder.Configuration.GetConnectionString("AppDbContext");
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23))));*/
 
