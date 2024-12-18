@@ -334,4 +334,27 @@ public class PagosController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
         }
     }
+    [HttpGet("GetFechas_Usuario")]
+    public async Task<IActionResult> GetFechasUsuario([FromQuery] int usuarioId, [FromQuery] DateTime fechaPago)
+    {
+        try
+        {
+            var fechasUsuario = await _context.Fechas_Usuarios
+                .Where(f => f.UsuarioId == usuarioId && f.FechaPago == fechaPago)
+                .FirstOrDefaultAsync();
+
+            if (fechasUsuario == null)
+            {
+                _logger.LogWarning("No se encontró el registro de Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}", usuarioId, fechaPago);
+                return NotFound(new { message = "Registro no encontrado." });
+            }
+            
+            return Ok(fechasUsuario);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error al obtener Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}: {errorMessage}", usuarioId, fechaPago, ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+    }
 }
