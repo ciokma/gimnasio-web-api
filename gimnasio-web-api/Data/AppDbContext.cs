@@ -19,5 +19,6 @@ namespace gimnasio_web_api.Data
         public DbSet<Tipo_Ejercicio> Tipo_Ejercicio { get; set; }
         public DbSet<Producto> Producto { get; set; } = default!;
         public DbSet<Pago> Pagos { get; set; }
+        public DbSet<Mensaje> Mensaje { get; set; }
     }
 }

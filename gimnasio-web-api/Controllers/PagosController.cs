@@ -156,7 +156,7 @@ public class PagosController : ControllerBase
 
         existingPago.CodigoUsuario = pagoDto.CodigoUsuario;
         existingPago.MesesPagados = pagoDto.MesesPagados;
-        if (pagoDto.MesesPagadosA == null)
+        if (pagoDto.MesesPagadosA == 0)
         {
             existingPago.MesesPagadosA = 0;
         }

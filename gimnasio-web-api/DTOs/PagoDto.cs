@@ -12,7 +12,7 @@ namespace gimnasio_web_api.DTOs
         public decimal Monto { get; set; }
         public string DetallePago { get; set; } = string.Empty;
         public bool IntervaloPago { get; set; } = false;
-        public PagoDto(int codigoPago, int codigoUsuario, int mesesPagados, int mesesPagadosA, DateTime fechaPago, decimal monto, string detallePago, bool intervalopago)
+        public PagoDto(int codigoPago, int codigoUsuario, int mesesPagados, int mesesPagadosA, DateTime fechaPago, decimal monto, string detallePago, bool intervaloPago)
         {
             CodigoPago = codigoPago;
             CodigoUsuario = codigoUsuario;
@@ -21,7 +21,7 @@ namespace gimnasio_web_api.DTOs
             FechaPago = fechaPago;
             Monto = monto;
             DetallePago = detallePago;
-            IntervaloPago = intervalopago;
+            IntervaloPago = intervaloPago;
         }
     }
 }
