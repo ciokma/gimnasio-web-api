@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using gimnasio_web_api.Models;
 using gimnasio_web_api.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+
 namespace gimnasio_web_api.Controllers
 {
     [Route("api/[controller]")]
@@ -11,9 +14,11 @@ namespace gimnasio_web_api.Controllers
     public class MensajeController : ControllerBase
     {
         private readonly IRepository<Mensaje, int> _repository;
-        public MensajeController(IRepository<Mensaje, int> repository)
+        private readonly ILogger<MensajeController> _logger;
+        public MensajeController(IRepository<Mensaje, int> repository, ILogger<MensajeController> logger)
         {
             _repository = repository;
+            _logger = logger;
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Mensaje>>> GetMensajes()
@@ -22,28 +27,29 @@ namespace gimnasio_web_api.Controllers
             return Ok(mensajes);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<Mensaje>> GetProducto(int id)
+        public async Task<ActionResult<Mensaje>> GetMensaje(int id)
         {
             var mensaje = await _repository.GetByIdAsync(id);
-            if(GetProducto == null)
+            if(mensaje == null)
             {
                 return NotFound();
             }
             return mensaje;
         }
         [HttpPost]
-        public async Task<ActionResult<Mensaje>> PostProducto(Mensaje mensaje)
+        public async Task<ActionResult<Mensaje>> PostMensaje(Mensaje mensaje)
         {
             await _repository.AddAsync(mensaje);
             return CreatedAtAction(nameof(GetMensajes), new {id = mensaje.Codigo}, mensaje);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPorducto(int id, Mensaje mensaje)
+        public async Task<IActionResult> PutMensaje(int id, Mensaje mensaje)
         {
-            if (id !=mensaje.Codigo)
+            if (id != mensaje.Codigo)
             {
                 return BadRequest();
             }
+            
             try
             {
                 await _repository.UpdateAsync(mensaje);
@@ -52,7 +58,7 @@ namespace gimnasio_web_api.Controllers
             {
                 return NotFound();
             }
-            catch(DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException)
             {
                 return Conflict("Error de concurrencia al actualizar el mensaje.");
             }

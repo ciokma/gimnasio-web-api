@@ -19,12 +19,14 @@ namespace gimnasio_web_api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase("GimnasioInMemoryDb"));
+            //builder.Services.AddDbContext<AppDbContext>(options =>
+            //    options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
-            /*var connectionString = builder.Configuration.GetConnectionString("AppDbContext");
+            var connectionString = builder.Configuration.GetConnectionString("AppDbContext");
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23))));*/
+                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23)),
+                mySqlOptions => mySqlOptions.EnableRetryOnFailure()));
+
 
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>

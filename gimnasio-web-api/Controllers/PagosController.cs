@@ -25,22 +25,72 @@ public class PagosController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
-    public async Task<List<PagoDto>> GetPagos()
+    [HttpGet("{year}/{month}")]
+    public async Task<IActionResult> GetPagosByMonthAndYear(int year, int month)
     {
-        var pagos = await _repository.GetAllAsync();
-        return pagos.Select(p => new PagoDto(
-            p.CodigoPago, 
-            p.CodigoUsuario, 
-            p.MesesPagados, 
-            p.MesesPagadosA, 
-            p.FechaPago, 
-            p.Monto, 
-            p.DetallePago,
-            p.IntervaloPago 
-        )).ToList();
-    }
+        try
+        {
+            var pagos = await _context.Pagos
+                .Include(p => p.Usuario)
+                .Where(p => p.FechaPago.Year == year && p.FechaPago.Month == month)
+                .Select(p => new
+                {
+                    p.CodigoPago,
+                    Usuario = new
+                    {
+                        NombreCompleto = p.Usuario.Nombres + " " + p.Usuario.Apellidos
+                    },
+                    p.CodigoUsuario,
+                    p.MesesPagados,
+                    p.MesesPagadosA,
+                    p.FechaPago,
+                    p.Monto,
+                    p.DetallePago,
+                    p.IntervaloPago
+                })
+                .ToListAsync();
 
+            if (pagos == null || pagos.Count == 0)
+            {
+                return NotFound(new { message = "No se encontraron pagos para este mes en este año" });
+            }
+
+            return Ok(pagos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Ocurrió un error al procesar la solicitud", error = ex.Message });
+        }
+    }
+    [HttpGet("resumen-pagos")]
+    public async Task<IActionResult> GetResumenPagos()
+    {
+        try
+        {
+            var resumenPagos = await _context.Pagos
+                .GroupBy(p => new { p.FechaPago.Year, p.FechaPago.Month })
+                .Select(g => new PagoResumenDto
+                {
+                    Año = g.Key.Year,
+                    Mes = g.Key.Month,
+                    PagosRealizados = g.Count()
+                })
+                .OrderBy(r => r.Año)
+                .ThenBy(r => r.Mes)
+                .ToListAsync();
+
+            if (resumenPagos == null || resumenPagos.Count == 0)
+            {
+                return NotFound(new { message = "No se encontraron pagos." });
+            }
+
+            return Ok(resumenPagos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Ocurrió un error al procesar la solicitud", error = ex.Message });
+        }
+    }
     [HttpGet("{id}")]
     public async Task<ActionResult<PagoDto>> GetPago(int id)
     {
@@ -354,6 +404,29 @@ public class PagosController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError("Error al obtener Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}: {errorMessage}", usuarioId, fechaPago, ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+    }
+    [HttpGet("CheckFechaUsuarioExist/{usuarioId}/{fechaPago}")]
+    public async Task<IActionResult> CheckFechaUsuarioExist(int usuarioId, DateTime fechaPago)
+    {
+        try
+        {
+            var existeFechaUsuario = await _context.Fechas_Usuarios
+                .AnyAsync(f => f.UsuarioId == usuarioId && f.FechaPago == fechaPago);
+
+            if (existeFechaUsuario)
+            {
+                return Ok(new { exists = true });
+            }
+            else
+            {
+                return Ok(new { exists = false });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error al verificar el registro de Fechas_Usuario: {errorMessage}", ex.Message);
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
         }
     }

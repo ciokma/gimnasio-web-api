@@ -12,6 +12,12 @@ namespace gimnasio_web_api.Data
                 .HasMany(u => u.FechasUsuario)
                 .WithOne(f => f.Usuario)
                 .HasForeignKey(f => f.UsuarioId);
+
+            modelBuilder.Entity<Pago>()
+            .HasIndex(p => p.CodigoUsuario);
+        
+            modelBuilder.Entity<Pago>()
+                .HasIndex(p => p.FechaPago); 
         }
         public DbSet<Usuarios> Usuarios { get; set; }
         public DbSet<Fechas_Usuario> Fechas_Usuarios { get; set; }

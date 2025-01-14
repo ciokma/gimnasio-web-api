@@ -68,36 +68,37 @@ namespace gimnasioNet.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<object>> GetFechasUsuario(int id)
         {
-            var fechasUsuario = await _context.Fechas_Usuarios
+            var fechasUsuarios = await _context.Fechas_Usuarios
+                .Where(f => f.UsuarioId == id)
                 .Include(f => f.Usuario)
-                .FirstOrDefaultAsync(f => f.Id == id);
+                .ToListAsync();
 
-            if (fechasUsuario == null)
+            if (fechasUsuarios == null || fechasUsuarios.Count == 0)
             {
                 return NotFound();
             }
 
-            var fechasUsuarioDto = new
+            var fechasUsuariosDto = fechasUsuarios.Select(f => new
             {
-                fechasUsuario.Id,
-                fechasUsuario.UsuarioId,
-                fechasUsuario.FechaPago,
-                fechasUsuario.FechaPagoA,
-                fechasUsuario.FechaVencimiento,
+                f.Id,
+                f.UsuarioId,
+                f.FechaPago,
+                f.FechaPagoA,
+                f.FechaVencimiento,
                 Usuario = new
                 {
-                    fechasUsuario.Usuario!.Codigo,
-                    fechasUsuario.Usuario.Nombres,
-                    fechasUsuario.Usuario.Apellidos,
-                    fechasUsuario.Usuario.Telefono,
-                    fechasUsuario.Usuario.Foto,
-                    fechasUsuario.Usuario.FechaIngreso,
-                    fechasUsuario.Usuario.Activo,
-                    fechasUsuario.Usuario.Observaciones
+                    f.Usuario!.Codigo,
+                    f.Usuario.Nombres,
+                    f.Usuario.Apellidos,
+                    f.Usuario.Telefono,
+                    f.Usuario.Foto,
+                    f.Usuario.FechaIngreso,
+                    f.Usuario.Activo,
+                    f.Usuario.Observaciones
                 }
-            };
+            }).ToList();
 
-            return Ok(fechasUsuarioDto);
+            return Ok(fechasUsuariosDto);
         }
 
         // POST: api/Fechas_Usuario
