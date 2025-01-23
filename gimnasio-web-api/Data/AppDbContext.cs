@@ -17,7 +17,11 @@ namespace gimnasio_web_api.Data
             .HasIndex(p => p.CodigoUsuario);
         
             modelBuilder.Entity<Pago>()
-                .HasIndex(p => p.FechaPago); 
+                .HasIndex(p => p.FechaPago);
+            
+            modelBuilder.Entity<Usuarios>()
+                .HasIndex(u => new { u.Nombres, u.Apellidos })
+                .HasDatabaseName("idx_nombres_apellidos");
         }
         public DbSet<Usuarios> Usuarios { get; set; }
         public DbSet<Fechas_Usuario> Fechas_Usuarios { get; set; }

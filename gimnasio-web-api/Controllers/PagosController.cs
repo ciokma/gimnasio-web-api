@@ -38,7 +38,7 @@ public class PagosController : ControllerBase
                     p.CodigoPago,
                     Usuario = new
                     {
-                        NombreCompleto = p.Usuario.Nombres + " " + p.Usuario.Apellidos
+                        NombreCompleto = p.Usuario != null ? p.Usuario.Nombres + " " + p.Usuario.Apellidos : "Desconocido"
                     },
                     p.CodigoUsuario,
                     p.MesesPagados,
