@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using gimnasio_web_api.Data;
+using gimnasio_web_api.DTOs;
 using gimnasio_web_api.Models;
 using gimnasio_web_api.Repositories;
 
@@ -10,27 +11,38 @@ namespace gimnasioNet.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
-        //private readonly AppDbContext _context;
+        private readonly AppDbContext _context;
         private readonly string _imagePath;
         private readonly string _defaultImageName = "Default.png";
 
         //new changes
-        private readonly IRepository<Usuarios> _repository;
+        private readonly IRepository<Usuarios, int> _repository;
 
-        public UsuariosController(IRepository<Usuarios> repository)
+        public UsuariosController(AppDbContext context, IRepository<Usuarios, int> repository)
         {
+            _context = context;
             _repository = repository;
             _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
         }
 
         // GET: api/Usuarios
         [HttpGet]
-        public async Task<List<Usuarios>> GetUsuarios()
+        public async Task<List<Usuarios>> GetUsuariosPorLetra(string letra)
         {
-            //return await _context.Usuarios.ToListAsync();
-            return (List<Usuarios>)await _repository.GetAllAsync();
-        }
+            Console.WriteLine($"Received letter: {letra}");
+            if (string.IsNullOrEmpty(letra) || letra.Length != 1)
+            {
+                return new List<Usuarios>();
+            }
 
+            var usuarios = await _repository.GetAllAsync();
+
+            var usuariosFiltrados = usuarios
+                .Where(u => !string.IsNullOrEmpty(u.Nombres) && u.Nombres[0].ToString().ToUpper() == letra.ToUpper())
+                .ToList();
+
+            return usuariosFiltrados;
+        }
         // GET: api/Usuarios/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Usuarios>> GetUsuarios(int id)
@@ -107,7 +119,6 @@ namespace gimnasioNet.Controllers
 
             return NoContent();
         }
-
 
         // POST: api/Usuarios
         [HttpPost]
@@ -194,5 +205,43 @@ namespace gimnasioNet.Controllers
             return _context.Usuarios.Any(e => e.Codigo == id);
         }
         */
+        [HttpGet("PrimeraLetraUsuarios")]
+        public async Task<ActionResult<List<UsuariosLetraDto>>> GetUsuariosPorLetraAsync()
+        {
+            var resultado = await _context.Usuarios
+                .Where(u => !string.IsNullOrEmpty(u.Nombres) && System.Text.RegularExpressions.Regex.IsMatch(u.Nombres, "^[A-Za-z]"))
+                .GroupBy(u => u.Nombres.Substring(0, 1).ToUpper())
+                .Select(g => new UsuariosLetraDto
+                {
+                    PrimeraLetra = g.Key,
+                    Cantidad = g.Count()
+                })
+                .OrderBy(r => r.PrimeraLetra)
+                .ToListAsync();
+
+            return Ok(resultado);
+        }
+        [HttpGet("BuscarUsuarios")]
+        public async Task<ActionResult<List<Usuarios>>> BuscarUsuarios(string nombres = null, string apellidos = null)
+        {
+            if (string.IsNullOrEmpty(nombres) && string.IsNullOrEmpty(apellidos))
+            {
+                return BadRequest("Debe proporcionar al menos un valor para 'nombres' o 'apellidos'.");
+            }
+
+            var usuariosQuery = _context.Usuarios.AsQueryable();
+            if (!string.IsNullOrEmpty(nombres))
+            {
+                usuariosQuery = usuariosQuery.Where(u => u.Nombres.Contains(nombres));
+            }
+
+            if (!string.IsNullOrEmpty(apellidos))
+            {
+                usuariosQuery = usuariosQuery.Where(u => u.Apellidos.Contains(apellidos));
+            }
+            var usuariosFiltrados = await usuariosQuery.ToListAsync();
+
+            return Ok(usuariosFiltrados);
+        }
     }
 }

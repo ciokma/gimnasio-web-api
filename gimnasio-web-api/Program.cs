@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using gimnasio_web_api.Repositories;
 using gimnasio_web_api.Models;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gimnasio_web_api
 {
@@ -17,8 +19,14 @@ namespace gimnasio_web_api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            //builder.Services.AddDbContext<AppDbContext>(options =>
+            //    options.UseInMemoryDatabase("GimnasioInMemoryDb"));
+
+            var connectionString = builder.Configuration.GetConnectionString("AppDbContext");
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase("GimnasioInMemoryDb"));
+                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23)),
+                mySqlOptions => mySqlOptions.EnableRetryOnFailure()));
+
 
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -44,9 +52,23 @@ namespace gimnasio_web_api
                               .AllowAnyMethod();
                     });
             });
-
+            
             //Inyectando dependencias
-            builder.Services.AddScoped<IRepository<Usuarios>, UsuarioRepository>();
+            builder.Services.AddScoped<IRepository<Usuarios, int>, UsuarioRepository>();
+            builder.Services.AddScoped<IRepository<Producto, int>, ProductoRepository>();
+            builder.Services.AddScoped<IRepository<Fechas_Usuario, int>, Fechas_UsuarioRepository>();
+            builder.Services.AddScoped<IRepository<Tipo_Ejercicio, int>, Tipo_EjercicioRepository>();
+            builder.Services.AddScoped<IRepository<Tipo_Pagos, string>, Tipo_PagoRepository>();
+            builder.Services.AddScoped<IRepository<Pago, int>, PagoRepository>();
+            builder.Services.AddScoped<IRepository<Mensaje, int>, MensajeRepository>();
+
+            Log.Logger = new LoggerConfiguration()
+                //.WriteTo.Console()
+                .WriteTo.File("Logs/myapp.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+            builder.Logging.AddSerilog();
+
 
             var app = builder.Build();
 

@@ -40,6 +40,11 @@ jobs:
         run: dotnet build gimnasio-web-api.csproj --no-restore
         working-directory: ./gimnasio-web-api
 
+
+      - name: Restore dependencies for test project
+        run: dotnet restore gimnasio_web_api.Tests.csproj
+        working-directory: ./gimnasio_web_api.Tests
+
       - name: Test with the dotnet CLI
         run: dotnet test gimnasio_web_api.Tests.csproj --no-restore
         working-directory: ./gimnasio_web_api.Tests

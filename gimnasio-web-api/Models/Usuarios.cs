@@ -27,7 +27,7 @@ namespace gimnasio_web_api.Models
 
         public string? Foto { get; set; }
 
-        [Column(TypeName = "DATE")]
+        [Column("Fecha_ingreso", TypeName = "DATE")]
         public DateTime? FechaIngreso { get; set; }
 
         [Required]

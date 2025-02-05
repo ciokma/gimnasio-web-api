@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using gimnasio_web_api.Data;
 using gimnasio_web_api.Models;
+using gimnasio_web_api.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace gimnasioNet.Controllers
 {
@@ -10,10 +12,11 @@ namespace gimnasioNet.Controllers
     public class Fechas_UsuarioController : ControllerBase
     {
         private readonly AppDbContext _context;
-
-        public Fechas_UsuarioController(AppDbContext context)
+        private readonly ILogger<Fechas_UsuarioController> _logger;
+        public Fechas_UsuarioController(AppDbContext context, ILogger<Fechas_UsuarioController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Fechas_Usuario
@@ -65,36 +68,37 @@ namespace gimnasioNet.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<object>> GetFechasUsuario(int id)
         {
-            var fechasUsuario = await _context.Fechas_Usuarios
+            var fechasUsuarios = await _context.Fechas_Usuarios
+                .Where(f => f.UsuarioId == id)
                 .Include(f => f.Usuario)
-                .FirstOrDefaultAsync(f => f.Id == id);
+                .ToListAsync();
 
-            if (fechasUsuario == null)
+            if (fechasUsuarios == null || fechasUsuarios.Count == 0)
             {
                 return NotFound();
             }
 
-            var fechasUsuarioDto = new
+            var fechasUsuariosDto = fechasUsuarios.Select(f => new
             {
-                fechasUsuario.Id,
-                fechasUsuario.UsuarioId,
-                fechasUsuario.FechaPago,
-                fechasUsuario.FechaPagoA,
-                fechasUsuario.FechaVencimiento,
+                f.Id,
+                f.UsuarioId,
+                f.FechaPago,
+                f.FechaPagoA,
+                f.FechaVencimiento,
                 Usuario = new
                 {
-                    fechasUsuario.Usuario!.Codigo,
-                    fechasUsuario.Usuario.Nombres,
-                    fechasUsuario.Usuario.Apellidos,
-                    fechasUsuario.Usuario.Telefono,
-                    fechasUsuario.Usuario.Foto,
-                    fechasUsuario.Usuario.FechaIngreso,
-                    fechasUsuario.Usuario.Activo,
-                    fechasUsuario.Usuario.Observaciones
+                    f.Usuario!.Codigo,
+                    f.Usuario.Nombres,
+                    f.Usuario.Apellidos,
+                    f.Usuario.Telefono,
+                    f.Usuario.Foto,
+                    f.Usuario.FechaIngreso,
+                    f.Usuario.Activo,
+                    f.Usuario.Observaciones
                 }
-            };
+            }).ToList();
 
-            return Ok(fechasUsuarioDto);
+            return Ok(fechasUsuariosDto);
         }
 
         // POST: api/Fechas_Usuario
@@ -130,27 +134,6 @@ namespace gimnasioNet.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
-        }
-
-        // DELETE: api/Fechas_Usuario/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFechasUsuario(int id)
-        {
-            var fechasUsuario = await _context.Fechas_Usuarios.FindAsync(id);
-            if (fechasUsuario == null)
-            {
-                return NotFound();
-            }
-
-            _context.Fechas_Usuarios.Remove(fechasUsuario);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool FechasUsuarioExists(int id)
-        {
-            return _context.Fechas_Usuarios.Any(e => e.Id == id);
         }
     }
 }

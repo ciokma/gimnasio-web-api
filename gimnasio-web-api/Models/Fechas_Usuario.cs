@@ -14,18 +14,19 @@ namespace gimnasio_web_api.Models
         public int Id { get; set; }
 
         [ForeignKey("Usuarios")]
+        [Column("usuario_id")]
         public int UsuarioId { get; set; }
         
         [JsonIgnore]
         public Usuarios? Usuario { get; set; }
 
-        [Column(TypeName = "DATE")]
+        [Column("Fecha_Pago", TypeName = "DATE")]
         public DateTime? FechaPago { get; set; }
 
-        [Column(TypeName = "DATE")]
+        [Column("Fecha_PagoA", TypeName = "DATE")]
         public DateTime? FechaPagoA { get; set; }
 
-        [Column(TypeName = "DATE")]
+        [Column("Fecha_Vencimiento", TypeName = "DATE")]
         public DateTime? FechaVencimiento { get; set; }
     }
 }
