@@ -24,7 +24,7 @@ namespace gimnasio_web_api
 
             var connectionString = builder.Configuration.GetConnectionString("AppDbContext");
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23)),
+                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 41)),
                 mySqlOptions => mySqlOptions.EnableRetryOnFailure()));
 
 
