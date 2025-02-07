@@ -389,6 +389,14 @@ public class PagosController : ControllerBase
     {
         try
         {
+            var usuarioExiste = await _context.Usuarios
+                .AnyAsync(u => u.Codigo == usuarioId);
+
+            if (!usuarioExiste)
+            {
+                return NotFound($"El usuario con el ID {usuarioId} no existe.");
+            }
+
             var fechasUsuario = await _context.Fechas_Usuarios
                 .Where(f => f.UsuarioId == usuarioId && f.FechaPago == fechaPago)
                 .FirstOrDefaultAsync();
@@ -396,14 +404,41 @@ public class PagosController : ControllerBase
             if (fechasUsuario == null)
             {
                 _logger.LogWarning("No se encontró el registro de Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}", usuarioId, fechaPago);
-                return NotFound(new { message = "Registro no encontrado." });
+                return NotFound(new { message = "Registro no encontrado en Fechas_Usuario." });
             }
-            
-            return Ok(fechasUsuario);
+
+            var ultimoPago = await _context.Pagos
+                .Where(p => p.CodigoUsuario == usuarioId)
+                .OrderByDescending(p => p.FechaPago)
+                .FirstOrDefaultAsync();
+
+            if (ultimoPago == null)
+            {
+                return NotFound($"No se encontraron pagos para el usuario con ID {usuarioId}.");
+            }
+
+            var pagoDto = new PagoDto(
+                ultimoPago.CodigoPago,
+                ultimoPago.CodigoUsuario,
+                ultimoPago.MesesPagados,
+                ultimoPago.MesesPagadosA,
+                ultimoPago.FechaPago,
+                ultimoPago.Monto,
+                ultimoPago.DetallePago,
+                ultimoPago.IntervaloPago
+            );
+
+            var resultado = new
+            {
+                FechasUsuario = fechasUsuario,
+                UltimoPago = pagoDto
+            };
+
+            return Ok(resultado);
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error al obtener Fechas_Usuario con UsuarioId {UsuarioId} y FechaPago {FechaPago}: {errorMessage}", usuarioId, fechaPago, ex.Message);
+            _logger.LogError("Error al obtener Fechas_Usuario y el último pago del usuario con ID {UsuarioId}: {errorMessage}", usuarioId, ex.Message);
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
         }
     }
