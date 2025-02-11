@@ -465,4 +465,45 @@ public class PagosController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
         }
     }
+    [HttpGet("ultimo-pago-usuario/{usuarioId}")]
+    public async Task<IActionResult> GetUltimoPagoPorUsuario(int usuarioId)
+    {
+        try
+        {
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Codigo == usuarioId);
+            
+            if (usuario == null)
+            {
+                return NotFound(new { message = $"El usuario con ID {usuarioId} no existe." });
+            }
+            var ultimoPago = await _context.Pagos
+                .Where(p => p.CodigoUsuario == usuarioId)
+                .OrderByDescending(p => p.FechaPago)
+                .FirstOrDefaultAsync();
+
+            if (ultimoPago == null)
+            {
+                return NotFound(new { message = $"No se encontraron pagos para el usuario con ID {usuarioId}." });
+            }
+
+            var pagoDto = new PagoDto(
+                ultimoPago.CodigoPago,
+                ultimoPago.CodigoUsuario,
+                ultimoPago.MesesPagados,
+                ultimoPago.MesesPagadosA,
+                ultimoPago.FechaPago,
+                ultimoPago.Monto,
+                ultimoPago.DetallePago,
+                ultimoPago.IntervaloPago
+            );
+
+            return Ok(pagoDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error al obtener el último pago del usuario con ID {usuarioId}: {errorMessage}", usuarioId, ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+    }
 }
