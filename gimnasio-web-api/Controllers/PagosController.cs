@@ -360,6 +360,11 @@ public class PagosController : ControllerBase
                 return NotFound($"No se encontraron pagos para el usuario con ID {usuarioId}.");
             }
 
+            if (fechasUsuarios.Count == 1 && esEdicion)
+            {
+                return Ok(new { message = "El usuario no tiene un pago anterior." });
+            }
+
             var pagoReferencia = esEdicion && fechasUsuarios.Count > 1 ? fechasUsuarios.Skip(1).First() : fechasUsuarios.First();
 
             if (pagoReferencia.FechaVencimiento == null)
