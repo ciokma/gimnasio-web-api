@@ -25,14 +25,14 @@ public class PagosController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("{year}/{month}")]
-    public async Task<IActionResult> GetPagosByMonthAndYear(int year, int month)
+    [HttpGet("{year}/{month}/{day}")]
+    public async Task<IActionResult> GetPagosByMonthYearAndDay(int year, int month, int day)
     {
         try
         {
             var pagos = await _context.Pagos
                 .Include(p => p.Usuario)
-                .Where(p => p.FechaPago.Year == year && p.FechaPago.Month == month)
+                .Where(p => p.FechaPago.Year == year && p.FechaPago.Month == month && p.FechaPago.Day == day)
                 .Select(p => new
                 {
                     p.CodigoPago,
@@ -52,7 +52,7 @@ public class PagosController : ControllerBase
 
             if (pagos == null || pagos.Count == 0)
             {
-                return NotFound(new { message = "No se encontraron pagos para este mes en este año" });
+                return NotFound(new { message = "No se encontraron pagos para esta fecha." });
             }
 
             return Ok(pagos);
@@ -62,29 +62,89 @@ public class PagosController : ControllerBase
             return StatusCode(500, new { message = "Ocurrió un error al procesar la solicitud", error = ex.Message });
         }
     }
-    [HttpGet("resumen-pagos")]
-    public async Task<IActionResult> GetResumenPagos()
+    [HttpGet("resumen-pagos/años")]
+    public async Task<IActionResult> GetAñosConPagos()
     {
         try
         {
-            var resumenPagos = await _context.Pagos
-                .GroupBy(p => new { p.FechaPago.Year, p.FechaPago.Month })
-                .Select(g => new PagoResumenDto
+            var añosConPagos = await _context.Pagos
+                .GroupBy(p => p.FechaPago.Year)
+                .Select(g => new 
                 {
-                    Año = g.Key.Year,
-                    Mes = g.Key.Month,
-                    PagosRealizados = g.Count()
+                    Año = g.Key,
+                    PagosRealizados = g.Count(),
+                    TotalGanancias = g.Sum(p => p.Monto)
                 })
                 .OrderBy(r => r.Año)
-                .ThenBy(r => r.Mes)
                 .ToListAsync();
 
-            if (resumenPagos == null || resumenPagos.Count == 0)
+            if (añosConPagos == null || añosConPagos.Count == 0)
             {
-                return NotFound(new { message = "No se encontraron pagos." });
+                return NotFound(new { message = "No se encontraron pagos registrados." });
             }
 
-            return Ok(resumenPagos);
+            return Ok(añosConPagos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Ocurrió un error al procesar la solicitud", error = ex.Message });
+        }
+    }
+    [HttpGet("resumen-pagos/{year}/meses")]
+    public async Task<IActionResult> GetMesesConPagos(int year)
+    {
+        try
+        {
+            var mesesConPagos = await _context.Pagos
+                .Where(p => p.FechaPago.Year == year)
+                .GroupBy(p => p.FechaPago.Month)
+                .Select(g => new 
+                {
+                    Año = g.First().FechaPago.Year,
+                    Mes = g.Key,
+                    PagosRealizados = g.Count(),
+                    TotalGanancias = g.Sum(p => p.Monto)
+                })
+                .OrderBy(r => r.Mes)
+                .ToListAsync();
+
+            if (mesesConPagos == null || mesesConPagos.Count == 0)
+            {
+                return NotFound(new { message = "No se encontraron pagos para el año especificado." });
+            }
+
+            return Ok(mesesConPagos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Ocurrió un error al procesar la solicitud", error = ex.Message });
+        }
+    }
+    [HttpGet("resumen-pagos/{year}/{month}/dias")]
+    public async Task<IActionResult> GetDiasConPagos(int year, int month)
+    {
+        try
+        {
+            var diasConPagos = await _context.Pagos
+                .Where(p => p.FechaPago.Year == year && p.FechaPago.Month == month)
+                .GroupBy(p => p.FechaPago.Day)
+                .Select(g => new 
+                {
+                    Año = g.First().FechaPago.Year,
+                    Mes = g.First().FechaPago.Month,
+                    Dia = g.Key,
+                    PagosRealizados = g.Count(),
+                    TotalGanancias = g.Sum(p => p.Monto)
+                })
+                .OrderBy(r => r.Dia)
+                .ToListAsync();
+
+            if (diasConPagos == null || diasConPagos.Count == 0)
+            {
+                return NotFound(new { message = "No se encontraron pagos para la fecha especificada." });
+            }
+
+            return Ok(diasConPagos);
         }
         catch (Exception ex)
         {
