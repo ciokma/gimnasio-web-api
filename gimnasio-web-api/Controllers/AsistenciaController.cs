@@ -44,8 +44,8 @@ namespace gimnasio_web_api.Controllers
             var resultado = new AsistenciaDto
             {
                 Usuario = usuario,
-                UltimaFechaUsuario = ultimoPagoYFecha?.UltimaFechaUsuario,
-                UltimoPago = ultimoPagoYFecha?.UltimoPago
+                UltimaFechaUsuario = ultimoPagoYFecha.UltimaFechaUsuario,
+                UltimoPago = ultimoPagoYFecha.UltimoPago
             };
 
             return Ok(resultado);
@@ -63,7 +63,7 @@ namespace gimnasio_web_api.Controllers
 
             if (ultimaFechaUsuario == null || ultimoPago == null)
             {
-                return null;
+                return new AsistenciaDto();
             }
 
             var pagoDto = new PagoDto(
@@ -81,8 +81,8 @@ namespace gimnasio_web_api.Controllers
             {
                 UltimaFechaUsuario = new FechasUsuarioDto
                 {
-                    FechaPago = ultimaFechaUsuario.FechaPago,
-                    FechaVencimiento = ultimaFechaUsuario.FechaVencimiento
+                    FechaPago = ultimaFechaUsuario?.FechaPago,
+                    FechaVencimiento = ultimaFechaUsuario?.FechaVencimiento
                 },
                 UltimoPago = pagoDto
             };

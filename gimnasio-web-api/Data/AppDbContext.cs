@@ -34,6 +34,11 @@ namespace gimnasio_web_api.Data
             modelBuilder.Entity<Pago>()
                 .HasIndex(p => new {p.CodigoUsuario, p.FechaPago, p.MesesPagados, p.IntervaloPago})
                 .HasDatabaseName("idx_pagos_para_asistencia");
+            modelBuilder.Entity<Venta>()
+                .HasOne(v => v.Producto)
+                .WithMany(p => p.Venta)
+                .HasForeignKey(v => v.CodigoProducto)
+                .OnDelete(DeleteBehavior.Cascade);
         }
         public DbSet<Usuarios> Usuarios { get; set; }
         public DbSet<Fechas_Usuario> Fechas_Usuarios { get; set; }
@@ -42,5 +47,7 @@ namespace gimnasio_web_api.Data
         public DbSet<Producto> Producto { get; set; } = default!;
         public DbSet<Pago> Pagos { get; set; }
         public DbSet<Mensaje> Mensaje { get; set; }
+        public DbSet<Venta> Venta { get; set; }
+        public DbSet<Administrador> Administrador { get; set; }
     }
 }
