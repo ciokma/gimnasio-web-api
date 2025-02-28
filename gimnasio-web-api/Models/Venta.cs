@@ -4,14 +4,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gimnasio_web_api.Models
 {
-    [Table("ventas")]
+    [Table("venta")]
     public class Venta
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Codigo_venta { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El nombre del vendedor es obligatorio")]
+
         [StringLength(30)]
         public string Nombre_vendedor { get; set; } = null!;
 

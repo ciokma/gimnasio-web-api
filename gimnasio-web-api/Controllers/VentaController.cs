@@ -5,6 +5,7 @@ using gimnasio_web_api.Models;
 using gimnasio_web_api.Data;
 using gimnasio_web_api.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace gimnasio_web_api.Controllers
 {
@@ -13,11 +14,13 @@ namespace gimnasio_web_api.Controllers
     public class VentaController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public VentaController(AppDbContext context)
+        private readonly ILogger<VentaController> _logger;
+        public VentaController(AppDbContext context, ILogger<VentaController> logger)
         {
             _context = context;
+            _logger = logger;
         }
-         [HttpGet("fechas")]
+        [HttpGet]
         public ActionResult<IEnumerable<DateTime>> GetFechasConVentas()
         {
             var fechasConVentas = _context.Venta
@@ -33,7 +36,7 @@ namespace gimnasio_web_api.Controllers
 
             return Ok(fechasConVentas);
         }
-        [HttpGet("Ventas_Fecha")]
+        [HttpGet("{fecha}")]
         public ActionResult<IEnumerable<Venta>> GetVentasPorFecha([FromQuery] DateTime fecha)
         {
             var ventas = _context.Venta
@@ -47,6 +50,58 @@ namespace gimnasio_web_api.Controllers
             }
 
             return Ok(ventas);
+        }
+        [HttpPost]
+        public async Task<ActionResult<Venta>> PostVenta(Venta venta)
+        {
+            if (string.IsNullOrEmpty(venta.Nombre_vendedor))
+            {
+                return BadRequest("La clave del vendedor es requerida.");
+            }
+
+            var vendedor = await _context.Administrador
+                                            .FirstOrDefaultAsync(a => a.Clave == venta.Nombre_vendedor);
+
+            if (vendedor == null)
+            {
+                return NotFound("Vendedor no encontrado con esa clave.");
+            }
+
+            _logger.LogInformation("Datos recibidos: {@Venta}", venta);
+
+            venta.Nombre_vendedor = vendedor.Nombre;
+
+            if (string.IsNullOrEmpty(venta.Nombre_vendedor))
+            {
+                _logger.LogWarning("El campo Nombre_vendedor no se asignó correctamente.");
+                return BadRequest("El campo Nombre_vendedor no se ha asignado correctamente.");
+            }
+
+            if (venta.CodigoProducto == 0)
+            {
+                return BadRequest("Debe proporcionar un producto para registrar la venta.");
+            }
+
+            var producto = await _context.Producto
+                                            .FirstOrDefaultAsync(p => p.CodigoProducto == venta.CodigoProducto);
+
+            if (producto == null)
+            {
+                return BadRequest("El producto proporcionado no fue encontrado.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("El modelo no es válido: {@ModelState}", ModelState);
+                return BadRequest(ModelState);
+            }
+
+            _context.Venta.Add(venta);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Venta registrada exitosamente: {@Venta}", venta);
+
+            return CreatedAtAction(nameof(PostVenta), new { id = venta.Codigo_venta }, venta);
         }
     }
 }
