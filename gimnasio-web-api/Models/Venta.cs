@@ -27,7 +27,7 @@ namespace gimnasio_web_api.Models
         public DateTime Fecha_venta { get; set; }
 
         [ForeignKey("Producto")]
-        public int CodigoProducto { get; set; }
+        public int? CodigoProducto { get; set; }
 
         public Producto? Producto { get; set; }
     }
