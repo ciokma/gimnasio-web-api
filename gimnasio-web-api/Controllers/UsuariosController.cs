@@ -222,7 +222,7 @@ namespace gimnasioNet.Controllers
             return Ok(resultado);
         }
         [HttpGet("BuscarUsuarios")]
-        public async Task<ActionResult<List<Usuarios>>> BuscarUsuarios(string nombres = null, string apellidos = null)
+        public async Task<ActionResult<List<Usuarios>>> BuscarUsuarios(string? nombres = null, string? apellidos = null)
         {
             if (string.IsNullOrEmpty(nombres) && string.IsNullOrEmpty(apellidos))
             {
