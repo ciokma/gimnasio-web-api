@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using gimnasio_web_api.Data;
 using gimnasio_web_api.DTOs;
 using gimnasio_web_api.Models;
-using System;
-using System.Linq;
+using gimnasio_web_api.Repositories;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace gimnasio_web_api.Controllers
 {
@@ -13,79 +11,63 @@ namespace gimnasio_web_api.Controllers
     [ApiController]
     public class AsistenciaController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IAsistenciaRepository _asistenciaRepository;
 
-        public AsistenciaController(AppDbContext context)
+        public AsistenciaController(IAsistenciaRepository asistenciaRepository)
         {
-            _context = context;
+            _asistenciaRepository = asistenciaRepository;
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerUsuarioInfo(int id)
         {
-            var usuario = await _context.Usuarios
-                .Where(u => u.Codigo == id)
-                .Select(u => new UsuarioDto
-                {
-                    Codigo = u.Codigo,
-                    Nombres = u.Nombres,
-                    Apellidos = u.Apellidos,
-                    Foto = u.Foto
-                })
-                .FirstOrDefaultAsync();
+            var resultado = await _asistenciaRepository.ObtenerUsuarioInfoAsync(id);
 
-            if (usuario == null)
+            if (resultado == null)
             {
                 return NotFound("Usuario no encontrado.");
             }
 
-            var ultimoPagoYFecha = await ObtenerUltimaInformacionPago(id);
+            return Ok(resultado);
+        }
+        [HttpGet("ultima-informacion-pago/{usuarioId}")]
+        public async Task<IActionResult> ObtenerUltimaInformacionPago(int usuarioId)
+        {
+            var resultado = await _asistenciaRepository.ObtenerUltimaInformacionPagoAsync(usuarioId);
 
-            var resultado = new AsistenciaDto
+            if (resultado == null || (resultado.UltimaFechaUsuario == null && resultado.UltimoPago == null))
             {
-                Usuario = usuario,
-                UltimaFechaUsuario = ultimoPagoYFecha.UltimaFechaUsuario,
-                UltimoPago = ultimoPagoYFecha.UltimoPago
-            };
+                return NotFound("No se encontraron pagos para el usuario.");
+            }
 
             return Ok(resultado);
         }
-        private async Task<AsistenciaDto> ObtenerUltimaInformacionPago(int usuarioId)
+        [HttpPost]
+        public async Task <ActionResult<Asistencia>> PostAsistencia(Asistencia asistencia)
         {
-            var ultimaFechaUsuario = await _context.Fechas_Usuarios
-                .Where(fu => fu.UsuarioId == usuarioId)
-                .OrderByDescending(fu => fu.FechaPago)
-                .FirstOrDefaultAsync();
-            var ultimoPago = await _context.Pagos
-                .Where(p => p.CodigoUsuario == usuarioId)
-                .OrderByDescending(p => p.FechaPago)
-                .FirstOrDefaultAsync();
-
-            if (ultimaFechaUsuario == null || ultimoPago == null)
+            await _asistenciaRepository.AddAsync(asistencia);
+            return NoContent();
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAsistencia(int id, Asistencia asistencia)
+        {
+            if (id != asistencia.Codigo)
             {
-                return new AsistenciaDto();
+                return BadRequest();
             }
-
-            var pagoDto = new PagoDto(
-                ultimoPago.CodigoPago,
-                ultimoPago.CodigoUsuario,
-                ultimoPago.MesesPagados,
-                ultimoPago.MesesPagadosA,
-                ultimoPago.FechaPago,
-                ultimoPago.Monto,
-                ultimoPago.DetallePago,
-                ultimoPago.IntervaloPago
-            );
-
-            return new AsistenciaDto
+            try
             {
-                UltimaFechaUsuario = new FechasUsuarioDto
-                {
-                    FechaPago = ultimaFechaUsuario?.FechaPago,
-                    FechaVencimiento = ultimaFechaUsuario?.FechaVencimiento
-                },
-                UltimoPago = pagoDto
-            };
+                await _asistenciaRepository.UpdateAsync(asistencia);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Conflict("Error de concurrencia al actualizar la asistencia");
+            }
+            return NoContent();
         }
     }
 }
