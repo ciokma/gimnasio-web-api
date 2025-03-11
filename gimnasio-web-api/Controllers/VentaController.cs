@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using gimnasio_web_api.Models;
 using gimnasio_web_api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using gimnasio_web_api.Repositories;
 
 namespace gimnasio_web_api.Controllers
 {
@@ -12,60 +14,51 @@ namespace gimnasio_web_api.Controllers
     [ApiController]
     public class VentaController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IVentaRepository _ventaRepository;
         private readonly ILogger<VentaController> _logger;
-        public VentaController(AppDbContext context, ILogger<VentaController> logger)
+        private readonly AppDbContext _context;
+
+        public VentaController(IVentaRepository ventaRepository, ILogger<VentaController> logger, AppDbContext context)
         {
-            _context = context;
+            _ventaRepository = ventaRepository;
             _logger = logger;
+            _context = context;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<DateTime>> GetFechasConVentas()
+        public async Task<ActionResult<IEnumerable<DateTime>>> GetFechasConVentas()
         {
-            var fechasConVentas = _context.Venta
-                                           .Select(v => v.Fecha_venta.Date)
-                                           .Distinct()
-                                           .OrderBy(fecha => fecha)
-                                           .ToList();
+            var fechasConVentas = await _ventaRepository.GetFechasConVentasAsync();
 
             return fechasConVentas.Any() ? Ok(fechasConVentas) : NotFound("No se encontraron fechas con ventas.");
         }
 
         [HttpGet("{fechaInicio}")]
-        public ActionResult<IEnumerable<Venta>> GetVentasPorRangoFechas([FromRoute] string fechaInicio, [FromQuery] string? fechaFin = null)
+        public async Task<ActionResult<IEnumerable<Venta>>> GetVentasPorRangoFechas([FromRoute] string fechaInicio, [FromQuery] string? fechaFin = null)
         {
             if (!DateTime.TryParse(fechaInicio, out DateTime fechaInicioParsed))
-            {
                 return BadRequest("Formato de fecha inválido en 'fechaInicio'.");
-            }
 
-            if (string.IsNullOrEmpty(fechaFin))
+            DateTime? fechaFinParsed = null;
+
+            if (!string.IsNullOrEmpty(fechaFin))
             {
-                var ventasUnicaFecha = _context.Venta
-                    .Where(v => v.Fecha_venta.Date == fechaInicioParsed.Date)
-                    .OrderBy(v => v.Fecha_venta)
-                    .ToList();
+                if (!DateTime.TryParse(fechaFin, out DateTime fechaFinValue))
+                    return BadRequest("Formato de fecha inválido en 'fechaFin'.");
 
-                return ventasUnicaFecha.Any() ? Ok(ventasUnicaFecha) : NotFound("No se encontraron ventas para la fecha especificada.");
+                fechaFinParsed = fechaFinValue;
             }
 
-            if (!DateTime.TryParse(fechaFin, out DateTime fechaFinParsed))
-            {
-                return BadRequest("Formato de fecha inválido en 'fechaFin'.");
-            }
+            var ventas = await _ventaRepository.GetVentasPorRangoFechasAsync(fechaInicioParsed, fechaFinParsed);
 
-            if (fechaInicioParsed > fechaFinParsed)
-            {
-                return BadRequest("La 'fechaInicio' no puede ser mayor que 'fechaFin'.");
-            }
+            return ventas.Any() ? Ok(ventas) : NotFound("No se encontraron ventas en el rango de fechas especificado.");
+        }
 
-            var ventasRango = _context.Venta
-                .Where(v => v.Fecha_venta.Date >= fechaInicioParsed.Date && v.Fecha_venta.Date <= fechaFinParsed.Date)
-                .OrderBy(v => v.Fecha_venta)
-                .ToList();
-
-            return ventasRango.Any() ? Ok(ventasRango) : NotFound("No se encontraron ventas en el rango de fechas especificado.");
+        [HttpGet("detalle/{id}")]
+        public async Task<ActionResult<Venta>> GetVentaPorId(int id)
+        {
+            var venta = await _ventaRepository.GetVentaPorIdAsync(id);
+            return venta != null ? Ok(venta) : NotFound($"No se encontró ninguna venta con el ID {id}.");
         }
 
         [HttpPost]
@@ -77,22 +70,14 @@ namespace gimnasio_web_api.Controllers
             }
 
             var vendedor = await _context.Administrador
-                                            .FirstOrDefaultAsync(a => a.Clave == venta.Nombre_vendedor);
+                                        .FirstOrDefaultAsync(a => a.Clave == venta.Nombre_vendedor);
 
             if (vendedor == null)
             {
                 return NotFound("Vendedor no encontrado con esa clave.");
             }
 
-            _logger.LogInformation("Datos recibidos: {@Venta}", venta);
-
             venta.Nombre_vendedor = vendedor.Nombre;
-
-            if (string.IsNullOrEmpty(venta.Nombre_vendedor))
-            {
-                _logger.LogWarning("El campo Nombre_vendedor no se asignó correctamente.");
-                return BadRequest("El campo Nombre_vendedor no se ha asignado correctamente.");
-            }
 
             if (venta.CodigoProducto == 0)
             {
@@ -100,7 +85,7 @@ namespace gimnasio_web_api.Controllers
             }
 
             var producto = await _context.Producto
-                                            .FirstOrDefaultAsync(p => p.CodigoProducto == venta.CodigoProducto);
+                                        .FirstOrDefaultAsync(p => p.CodigoProducto == venta.CodigoProducto);
 
             if (producto == null)
             {
@@ -109,71 +94,61 @@ namespace gimnasio_web_api.Controllers
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("El modelo no es válido: {@ModelState}", ModelState);
                 return BadRequest(ModelState);
             }
 
-            _context.Venta.Add(venta);
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Venta registrada exitosamente: {@Venta}", venta);
+            await _ventaRepository.AddVentaAsync(venta);
 
             return CreatedAtAction(nameof(PostVenta), new { id = venta.Codigo_venta }, venta);
         }
-        [HttpGet("detalle/{id}")]
-        public async Task<ActionResult<Venta>> GetVentaPorId(int id)
-        {
-            var venta = await _context.Venta.FindAsync(id);
 
-            if (venta == null)
-            {
-                return NotFound($"No se encontró ninguna venta con el ID {id}.");
-            }
-
-            return Ok(venta);
-        }
         [HttpPut("{id}")]
         public async Task<IActionResult> PutVenta(int id, Venta venta)
         {
             if (id != venta.Codigo_venta)
-            {
                 return BadRequest("El ID de la venta no coincide.");
+
+            if (string.IsNullOrEmpty(venta.Nombre_vendedor))
+            {
+                return BadRequest("La clave del vendedor es requerida.");
             }
 
-            var ventaExistente = await _context.Venta.FindAsync(id);
-            if (ventaExistente == null)
+            var vendedor = await _context.Administrador
+                                        .FirstOrDefaultAsync(a => a.Clave == venta.Nombre_vendedor);
+
+            if (vendedor == null)
             {
-                return NotFound("Venta no encontrada.");
+                return NotFound("Vendedor no encontrado con esa clave.");
             }
 
-            ventaExistente.Fecha_venta = venta.Fecha_venta;
-            ventaExistente.Nombre_vendedor = venta.Nombre_vendedor;
-            ventaExistente.CodigoProducto = venta.CodigoProducto;
-            ventaExistente.Total = venta.Total;
+            venta.Nombre_vendedor = vendedor.Nombre;
 
-            try
+            if (venta.CodigoProducto == 0)
             {
-                await _context.SaveChangesAsync();
+                return BadRequest("Debe proporcionar un producto para registrar la venta.");
             }
-            catch (DbUpdateConcurrencyException)
+
+            var producto = await _context.Producto
+                                        .FirstOrDefaultAsync(p => p.CodigoProducto == venta.CodigoProducto);
+
+            if (producto == null)
             {
-                return StatusCode(500, "Error al actualizar la venta.");
+                return BadRequest("El producto proporcionado no fue encontrado.");
             }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _ventaRepository.UpdateVentaAsync(venta);
 
             return NoContent();
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVenta(int id)
         {
-            var venta = await _context.Venta.FindAsync(id);
-            if (venta == null)
-            {
-                return NotFound("Venta no encontrada.");
-            }
-
-            _context.Venta.Remove(venta);
-            await _context.SaveChangesAsync();
-
+            await _ventaRepository.DeleteVentaAsync(id);
             return NoContent();
         }
     }

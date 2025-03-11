@@ -61,6 +61,7 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IRepository<Tipo_Pagos, string>, Tipo_PagoRepository>();
             builder.Services.AddScoped<IRepository<Pago, int>, PagoRepository>();
             builder.Services.AddScoped<IRepository<Mensaje, int>, MensajeRepository>();
+            builder.Services.AddScoped<IVentaRepository, VentaRepository>();
 
             Log.Logger = new LoggerConfiguration()
                 //.WriteTo.Console()
