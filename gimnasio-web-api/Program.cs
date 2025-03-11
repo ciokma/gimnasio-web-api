@@ -10,6 +10,9 @@ using gimnasio_web_api.Repositories;
 using gimnasio_web_api.Models;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace gimnasio_web_api
 {
@@ -17,6 +20,7 @@ namespace gimnasio_web_api
     {
         public static void Main(string[] args)
         {
+
             var builder = WebApplication.CreateBuilder(args);
 
             //builder.Services.AddDbContext<AppDbContext>(options =>
@@ -52,7 +56,7 @@ namespace gimnasio_web_api
                               .AllowAnyMethod();
                     });
             });
-            
+
             //Inyectando dependencias
             builder.Services.AddScoped<IRepository<Usuarios, int>, UsuarioRepository>();
             builder.Services.AddScoped<IRepository<Producto, int>, ProductoRepository>();
@@ -69,8 +73,34 @@ namespace gimnasio_web_api
 
             builder.Logging.AddSerilog();
 
+            // JsonWebToken 8.0.0 Autenticacion
+            #region JsonWebToken
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = "gymsys.com",
+                        ValidAudience = "gymsys.com",
+                        //Cambiar luego a appconfig
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue("JsonWebTokenSecret","")))
+                    };
+                });
+
+            builder.Services.AddAuthorization();
+
+            #endregion JsonWebToken
+
+
 
             var app = builder.Build();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
 
             app.UseCors("AllowReactApp");
 

@@ -4,11 +4,13 @@ using gimnasio_web_api.Data;
 using gimnasio_web_api.Models;
 using gimnasio_web_api.Repositories;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasioNet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class Fechas_UsuarioController : ControllerBase
     {
         private readonly AppDbContext _context;

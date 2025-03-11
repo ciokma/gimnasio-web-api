@@ -6,11 +6,13 @@ using gimnasio_web_api.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasio_web_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MensajeController : ControllerBase
     {
         private readonly IRepository<Mensaje, int> _repository;
