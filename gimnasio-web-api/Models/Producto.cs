@@ -20,5 +20,6 @@ namespace gimnasio_web_api.Models
 
         [Required]
         public double Existencias { get; set; }
+        public ICollection<Venta>? Venta { get; set; }
     }
 }

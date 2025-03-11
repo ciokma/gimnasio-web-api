@@ -28,7 +28,7 @@ namespace gimnasio_web_api
 
             var connectionString = builder.Configuration.GetConnectionString("AppDbContext");
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23)),
+                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 41)),
                 mySqlOptions => mySqlOptions.EnableRetryOnFailure()));
 
 
@@ -65,6 +65,7 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IRepository<Tipo_Pagos, string>, Tipo_PagoRepository>();
             builder.Services.AddScoped<IRepository<Pago, int>, PagoRepository>();
             builder.Services.AddScoped<IRepository<Mensaje, int>, MensajeRepository>();
+            builder.Services.AddScoped<IVentaRepository, VentaRepository>();
 
             Log.Logger = new LoggerConfiguration()
                 //.WriteTo.Console()
