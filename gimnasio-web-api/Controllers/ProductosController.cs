@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using gimnasio_web_api.Models;
 using gimnasio_web_api.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace gimnasio_web_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductosController : ControllerBase
     {
         private readonly IRepository<Producto, int> _repository;

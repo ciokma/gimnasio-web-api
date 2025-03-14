@@ -3,11 +3,13 @@ using gimnasio_web_api.Models;
 using gimnasio_web_api.Repositories;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasio_web_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class Tipo_EjercicioController : ControllerBase
     {
         private readonly IRepository<Tipo_Ejercicio, int> _repository;
