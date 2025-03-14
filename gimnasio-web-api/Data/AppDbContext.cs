@@ -39,6 +39,9 @@ namespace gimnasio_web_api.Data
                 .WithMany(p => p.Venta)
                 .HasForeignKey(v => v.CodigoProducto)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Asistencia>()
+                .HasIndex(a => a.Fecha)
+                .HasDatabaseName("idx_asistencia_fecha");
         }
         public DbSet<Usuarios> Usuarios { get; set; }
         public DbSet<Fechas_Usuario> Fechas_Usuarios { get; set; }

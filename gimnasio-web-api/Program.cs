@@ -19,6 +19,7 @@ namespace gimnasio_web_api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.WebHost.UseUrls("http://192.168.1.14:5211");
             //builder.Services.AddDbContext<AppDbContext>(options =>
             //    options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
@@ -27,12 +28,6 @@ namespace gimnasio_web_api
                 options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 41)),
                 mySqlOptions => mySqlOptions.EnableRetryOnFailure()));
 
-
-            builder.Services.AddControllers()
-                .AddNewtonsoftJson(options =>
-                {
-                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                });
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
                 {
@@ -44,15 +39,34 @@ namespace gimnasio_web_api
 
             builder.Services.AddCors(options =>
             {
+                options.AddPolicy("AllowLocalNetwork",
+                    policy =>
+                    {
+                        policy.SetIsOriginAllowed(origin =>
+                        {
+                            return origin.StartsWith("http://192.168.") ||
+                                origin.StartsWith("http://10.") ||
+                                origin.StartsWith("http://172.") ||
+                                origin.StartsWith("http://localhost");
+                        })
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    });
+            });
+
+            /*builder.Services.AddCors(options =>
+            {
                 options.AddPolicy("AllowReactApp",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:3000")
+                        policy.AllowAnyOrigin()
+                        //policy.WithOrigins("http://192.168.1.14:3000")
+                        //policy.WithOrigins("http://localhost:3000")
                               .AllowAnyHeader()
                               .AllowAnyMethod();
                     });
-            });
-            
+            });*/
+
             //Inyectando dependencias
             builder.Services.AddScoped<IRepository<Usuarios, int>, UsuarioRepository>();
             builder.Services.AddScoped<IRepository<Producto, int>, ProductoRepository>();
@@ -71,10 +85,9 @@ namespace gimnasio_web_api
 
             builder.Logging.AddSerilog();
 
-
             var app = builder.Build();
 
-            app.UseCors("AllowReactApp");
+            app.UseCors("AllowLocalNetwork");
 
             if (app.Environment.IsDevelopment())
             {
