@@ -13,6 +13,7 @@ using Serilog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace gimnasio_web_api
 {
@@ -71,8 +72,6 @@ namespace gimnasio_web_api
                     });
             });*/
 
-            });
-
             //Inyectando dependencias
             builder.Services.AddScoped<IRepository<Usuarios, int>, UsuarioRepository>();
             builder.Services.AddScoped<IRepository<Producto, int>, ProductoRepository>();
@@ -105,7 +104,7 @@ namespace gimnasio_web_api
                         ValidIssuer = "gymsys.com",
                         ValidAudience = "gymsys.com",
                         //Cambiar luego a appconfig
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue("JsonWebTokenSecret","")))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue("JsonWebTokenSecret", "")))
                     };
                 });
 
@@ -137,8 +136,8 @@ namespace gimnasio_web_api
 
             var summaries = new[]
             {
-                "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-            };
+                        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+                    };
 
             app.MapGet("/weatherforecast", () =>
             {

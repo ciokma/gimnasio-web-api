@@ -4,11 +4,13 @@ using gimnasio_web_api.Models;
 using gimnasio_web_api.Repositories;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasio_web_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AsistenciaController : ControllerBase
     {
         private readonly IAsistenciaRepository _asistenciaRepository;
