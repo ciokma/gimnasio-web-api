@@ -7,11 +7,13 @@ using gimnasio_web_api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using gimnasio_web_api.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasio_web_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class VentaController : ControllerBase
     {
         private readonly IVentaRepository _ventaRepository;
