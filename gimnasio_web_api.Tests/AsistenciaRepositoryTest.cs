@@ -157,5 +157,22 @@ namespace gimnasio_web_api.Tests
             Assert.NotNull(result);
             Assert.Equal(4, result.CodigoUsuario);
         }
+        [Fact]
+        public async Task GetAsistenciasPorFechasAsync_ShouldReturnCorrectAsistencias()
+        {
+            var db = CreateDbContext();
+            var repository = new AsistenciaRepository(db);
+
+            var primerafecha = DateTime.UtcNow.Date;
+            var segundafecha = primerafecha.AddDays(5);
+            
+            await db.Asistencias.AddRangeAsync(
+                new Asistencia {Fecha = primerafecha, CodigoUsuario = 1, Hora = TimeSpan.FromHours(10) },
+                new Asistencia {Fecha = segundafecha, CodigoUsuario = 3, Hora = TimeSpan.FromHours(15) }
+            );
+            await db.SaveChangesAsync();
+            var asistencias = await repository.GetAsistenciaPorFechaAsync(primerafecha, segundafecha);
+            Assert.Equal(2, asistencias.Count());
+        }
     }
 }
