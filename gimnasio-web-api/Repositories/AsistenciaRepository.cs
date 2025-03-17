@@ -92,5 +92,17 @@ namespace gimnasio_web_api.Repositories
             _context.Asistencias.Update(asistencia);
             await _context.SaveChangesAsync();
         }
+        public async Task <IEnumerable<Asistencia>>GetAsistenciaPorFechaAsync(DateTime primerafecha, DateTime? segundafecha = null)
+        {
+            var query = _context.Asistencias.AsQueryable();
+            if (segundafecha.HasValue){
+                query = query.Where(a => a.Fecha.Date >= primerafecha.Date && a.Fecha.Date <= segundafecha.Value.Date);
+            }
+            else
+            {
+                query = query.Where(a => a.Fecha.Date == primerafecha.Date);
+            }
+            return await query.OrderBy(a => a.Fecha).ToListAsync();
+        }
     }
 }

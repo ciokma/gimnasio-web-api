@@ -10,5 +10,6 @@ namespace gimnasio_web_api.Repositories
         Task<AsistenciaDto> ObtenerUltimaInformacionPagoAsync(int usuarioId);
         Task AddAsync(Asistencia asistencia);
         Task UpdateAsync(Asistencia asistencia);
+        Task <IEnumerable<Asistencia>> GetAsistenciaPorFechaAsync(DateTime primerafecha, DateTime? segundafecha = null);
     }
 }

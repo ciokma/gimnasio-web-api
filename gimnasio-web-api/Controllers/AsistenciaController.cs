@@ -71,5 +71,21 @@ namespace gimnasio_web_api.Controllers
             }
             return NoContent();
         }
+        [HttpGet("{primerafecha}")]
+        public async Task<ActionResult<IEnumerable<Asistencia>>> GetAsistenciaPorFecha([FromRoute] string primerafecha, [FromQuery] string? segundafecha = null)
+        {
+            if (!DateTime.TryParse(primerafecha, out DateTime primerafechaParsed)){
+                return BadRequest("Formato de la fecha inválida en 'primerafecha'");
+            }
+            DateTime? segundafechaParsed = null;
+            if (!string.IsNullOrEmpty(segundafecha)){
+                if (!DateTime.TryParse(segundafecha, out DateTime segundafechaValue)){
+                    return BadRequest("Formato de la fecha inválida en 'segundafecha'");
+                }
+                segundafechaParsed = segundafechaValue;
+            }
+            var asistencias = await _asistenciaRepository.GetAsistenciaPorFechaAsync(primerafechaParsed, segundafechaParsed);
+            return asistencias.Any() ? Ok(asistencias) : NotFound("No se encontraron fechas en el rango especificado.");
+        }
     }
 }

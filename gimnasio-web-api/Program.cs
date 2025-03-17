@@ -24,7 +24,7 @@ namespace gimnasio_web_api
 
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.WebHost.UseUrls("http://192.168.1.14:5211");
+            builder.WebHost.UseUrls("http://0.0.0.0:5211");
             //builder.Services.AddDbContext<AppDbContext>(options =>
             //    options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
@@ -112,11 +112,11 @@ namespace gimnasio_web_api
 
             #endregion JsonWebToken
             var app = builder.Build();
+            app.UseCors("AllowLocalNetwork");
             app.UseAuthentication();
             app.UseAuthorization();
 
 
-            app.UseCors("AllowLocalNetwork");
 
             if (app.Environment.IsDevelopment())
             {
