@@ -2,15 +2,17 @@ using Microsoft.AspNetCore.Mvc;
 using gimnasio_web_api.DTOs;
 using gimnasio_web_api.Models;
 using gimnasio_web_api.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasio_web_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class AsistenciaController : ControllerBase
     {
         private readonly IAsistenciaRepository _asistenciaRepository;
@@ -32,6 +34,7 @@ namespace gimnasio_web_api.Controllers
 
             return Ok(resultado);
         }
+
         [HttpGet("ultima-informacion-pago/{usuarioId}")]
         public async Task<IActionResult> ObtenerUltimaInformacionPago(int usuarioId)
         {
@@ -44,12 +47,14 @@ namespace gimnasio_web_api.Controllers
 
             return Ok(resultado);
         }
+
         [HttpPost]
-        public async Task <ActionResult<Asistencia>> PostAsistencia(Asistencia asistencia)
+        public async Task<ActionResult<Asistencia>> PostAsistencia(Asistencia asistencia)
         {
             await _asistenciaRepository.AddAsync(asistencia);
             return NoContent();
         }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAsistencia(int id, Asistencia asistencia)
         {
@@ -57,6 +62,7 @@ namespace gimnasio_web_api.Controllers
             {
                 return BadRequest();
             }
+
             try
             {
                 await _asistenciaRepository.UpdateAsync(asistencia);
@@ -65,13 +71,54 @@ namespace gimnasio_web_api.Controllers
             {
                 return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
                 return Conflict("Error de concurrencia al actualizar la asistencia");
             }
+
             return NoContent();
         }
-        [HttpGet("{primerafecha}")]
+
+        [HttpGet("resumen-asistencia/años")]
+        public async Task<IActionResult> GetAñosConAsistencias()
+        {
+            var añosConAsistencias = await _asistenciaRepository.GetAñosConAsistenciasAsync();
+
+            if (!añosConAsistencias.Any())
+            {
+                return NotFound(new { message = "No se encontraron asistencias registradas." });
+            }
+
+            return Ok(añosConAsistencias);
+        }
+
+        [HttpGet("resumen-asistencia/{year}/meses")]
+        public async Task<IActionResult> GetMesesConAsistencias(int year)
+        {
+            var mesesConAsistencias = await _asistenciaRepository.GetMesesConAsistenciasAsync(year);
+
+            if (!mesesConAsistencias.Any())
+            {
+                return NotFound(new { message = "No se encontraron asistencias para el año especificado." });
+            }
+
+            return Ok(mesesConAsistencias);
+        }
+
+        [HttpGet("resumen-asistencia/{year}/{month}/dias")]
+        public async Task<IActionResult> GetDiasConAsistencias(int year, int month)
+        {
+            var diasConAsistencias = await _asistenciaRepository.GetDiasConAsistenciasAsync(year, month);
+
+            if (!diasConAsistencias.Any())
+            {
+                return NotFound(new { message = "No se encontraron asistencias para la fecha especificada." });
+            }
+
+            return Ok(diasConAsistencias);
+        }
+
+        [HttpGet("fecha/{primerafecha}")]
         public async Task<ActionResult<IEnumerable<Asistencia>>> GetAsistenciaPorFecha([FromRoute] string primerafecha, [FromQuery] string? segundafecha = null)
         {
             if (!DateTime.TryParse(primerafecha, out DateTime primerafechaParsed)){
