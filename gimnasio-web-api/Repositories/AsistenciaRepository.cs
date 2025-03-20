@@ -92,5 +92,60 @@ namespace gimnasio_web_api.Repositories
             _context.Asistencias.Update(asistencia);
             await _context.SaveChangesAsync();
         }
+        public async Task <IEnumerable<Asistencia>>GetAsistenciaPorFechaAsync(DateTime primerafecha, DateTime? segundafecha = null)
+        {
+            var query = _context.Asistencias.AsQueryable();
+            if (segundafecha.HasValue){
+                query = query.Where(a => a.Fecha.Date >= primerafecha.Date && a.Fecha.Date <= segundafecha.Value.Date);
+            }
+            else
+            {
+                query = query.Where(a => a.Fecha.Date == primerafecha.Date);
+            }
+            return await query.OrderBy(a => a.Fecha).ToListAsync();
+        }
+        public async Task<IEnumerable<AsistenciaResumenDto>> GetAñosConAsistenciasAsync()
+        {
+            return await _context.Asistencias
+                .GroupBy(a => a.Fecha.Year)
+                .Select(g => new AsistenciaResumenDto
+                {
+                    Año = g.Key,
+                    AsistenciasRegistradas = g.Count()
+                })
+                .OrderBy(r => r.Año)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<AsistenciaResumenDto>> GetMesesConAsistenciasAsync(int year)
+        {
+            return await _context.Asistencias
+                .Where(a => a.Fecha.Year == year)
+                .GroupBy(a => a.Fecha.Month)
+                .Select(g => new AsistenciaResumenDto
+                {
+                    Año = year,
+                    Mes = g.Key,
+                    AsistenciasRegistradas = g.Count()
+                })
+                .OrderBy(r => r.Mes)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<AsistenciaResumenDto>> GetDiasConAsistenciasAsync(int year, int month)
+        {
+            return await _context.Asistencias
+                .Where(a => a.Fecha.Year == year && a.Fecha.Month == month)
+                .GroupBy(a => a.Fecha.Day)
+                .Select(g => new AsistenciaResumenDto
+                {
+                    Año = year,
+                    Mes = month,
+                    Dia = g.Key,
+                    AsistenciasRegistradas = g.Count()
+                })
+                .OrderBy(r => r.Dia)
+                .ToListAsync();
+        }
     }
 }

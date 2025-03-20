@@ -21,11 +21,6 @@ namespace gimnasio_web_api.Repositories
             return await _context.Venta.ToListAsync();
         }
 
-        public async Task<Venta> GetByIdAsync(int id)
-        {
-            return await _context.Venta.FindAsync(id);
-        }
-
         public async Task AddAsync(Venta entity) => await AddVentaAsync(entity);
 
         public async Task UpdateAsync(Venta entity) => await UpdateVentaAsync(entity);
@@ -58,7 +53,12 @@ namespace gimnasio_web_api.Repositories
 
         public async Task<Venta> GetVentaPorIdAsync(int id)
         {
-            return await _context.Venta.FindAsync(id);
+            var venta = await _context.Venta.FindAsync(id);
+            if (venta == null)
+            {
+                throw new KeyNotFoundException($"No se encontró una venta con el ID {id}");
+            }
+            return venta;
         }
 
         public async Task AddVentaAsync(Venta venta)

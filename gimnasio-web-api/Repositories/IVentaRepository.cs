@@ -5,7 +5,7 @@ using gimnasio_web_api.Models;
 
 namespace gimnasio_web_api.Repositories
 {
-    public interface IVentaRepository : IRepository<Venta, int>
+    public interface IVentaRepository
     {
         Task<IEnumerable<DateTime>> GetFechasConVentasAsync();
         Task<IEnumerable<Venta>> GetVentasPorRangoFechasAsync(DateTime fechaInicio, DateTime? fechaFin = null);

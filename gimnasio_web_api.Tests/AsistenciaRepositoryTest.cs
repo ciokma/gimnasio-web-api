@@ -157,5 +157,108 @@ namespace gimnasio_web_api.Tests
             Assert.NotNull(result);
             Assert.Equal(4, result.CodigoUsuario);
         }
+        [Fact]
+        public async Task GetAsistenciasPorFechasAsync_ShouldReturnCorrectAsistencias()
+        {
+            var db = CreateDbContext();
+            var repository = new AsistenciaRepository(db);
+
+            var primerafecha = DateTime.UtcNow.Date;
+            var segundafecha = primerafecha.AddDays(5);
+            
+            await db.Asistencias.AddRangeAsync(
+                new Asistencia {Fecha = primerafecha, CodigoUsuario = 1, Hora = TimeSpan.FromHours(10) },
+                new Asistencia {Fecha = segundafecha, CodigoUsuario = 3, Hora = TimeSpan.FromHours(15) }
+            );
+            await db.SaveChangesAsync();
+            var asistencias = await repository.GetAsistenciaPorFechaAsync(primerafecha, segundafecha);
+            Assert.Equal(2, asistencias.Count());
+        }
+        [Fact]
+        public async Task GetAñosConAsistenciasAsync_DeberiaRetornarAñosConAsistencias()
+        {
+            var db = CreateDbContext();
+            var repository = new AsistenciaRepository(db);
+
+            await db.Asistencias.AddRangeAsync(
+                new Asistencia { Fecha = new DateTime(2023, 5, 10), CodigoUsuario = 1 },
+                new Asistencia { Fecha = new DateTime(2024, 3, 15), CodigoUsuario = 2 }
+            );
+            await db.SaveChangesAsync();
+
+            var resultado = await repository.GetAñosConAsistenciasAsync();
+
+            Assert.NotNull(resultado);
+            Assert.Equal(2, resultado.Count());
+            Assert.Contains(resultado, r => ((dynamic)r).Año == 2023);
+            Assert.Contains(resultado, r => ((dynamic)r).Año == 2024);
+        }
+
+        [Fact]
+        public async Task GetAñosConAsistenciasAsync_DeberiaRetornarAñosCorrectos()
+        {
+            var db = CreateDbContext();
+            var repository = new AsistenciaRepository(db);
+
+            await db.Asistencias.AddRangeAsync(
+                new Asistencia { Fecha = new DateTime(2023, 5, 1), CodigoUsuario = 1 },
+                new Asistencia { Fecha = new DateTime(2024, 6, 1), CodigoUsuario = 2 }
+            );
+            await db.SaveChangesAsync();
+
+            var resultado = await repository.GetAñosConAsistenciasAsync();
+
+            Assert.Contains(resultado, r => r.Año == 2023);
+            Assert.Contains(resultado, r => r.Año == 2024);
+        }
+
+        [Fact]
+        public async Task GetMesesConAsistenciasAsync_DeberiaRetornarMesesCorrectos()
+        {
+            var db = CreateDbContext();
+            var repository = new AsistenciaRepository(db);
+
+            await db.Asistencias.AddRangeAsync(
+                new Asistencia { Fecha = new DateTime(2023, 1, 10), CodigoUsuario = 1 },
+                new Asistencia { Fecha = new DateTime(2023, 2, 15), CodigoUsuario = 2 }
+            );
+            await db.SaveChangesAsync();
+
+            var resultado = await repository.GetMesesConAsistenciasAsync(2023);
+
+            Assert.Contains(resultado, r => r.Mes == 1);
+            Assert.Contains(resultado, r => r.Mes == 2);
+        }
+
+        [Fact]
+        public async Task GetDiasConAsistenciasAsync_DeberiaRetornarDiasCorrectos()
+        {
+            var db = CreateDbContext();
+            var repository = new AsistenciaRepository(db);
+
+            await db.Asistencias.AddRangeAsync(
+                new Asistencia { Fecha = new DateTime(2023, 5, 10), CodigoUsuario = 1 },
+                new Asistencia { Fecha = new DateTime(2023, 5, 15), CodigoUsuario = 2 }
+            );
+            await db.SaveChangesAsync();
+
+            var resultado = await repository.GetDiasConAsistenciasAsync(2023, 5);
+
+            Assert.Contains(resultado, r => r.Dia == 10);
+            Assert.Contains(resultado, r => r.Dia == 15);
+        }
+
+        [Fact]
+        public async Task GetDiasConAsistenciasAsync_DeberiaRetornarListaVaciaSiNoHayAsistenciasParaEseMesYAño()
+        {
+            var db = CreateDbContext();
+            var repository = new AsistenciaRepository(db);
+            int año = 2025, mes = 4;
+
+            var resultado = await repository.GetDiasConAsistenciasAsync(año, mes);
+
+            Assert.NotNull(resultado);
+            Assert.Empty(resultado);
+        }
     }
 }
