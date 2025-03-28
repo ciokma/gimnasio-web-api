@@ -1,11 +1,7 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using gimnasio_web_api.Models;
-using gimnasio_web_api.Data;
 using gimnasio_web_api.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
+using BCrypt.Net;
 
 namespace gimnasio_web_api.Controllers
 {
@@ -13,22 +9,55 @@ namespace gimnasio_web_api.Controllers
     [ApiController]
     public class AdministradorController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public AdministradorController(AppDbContext context)
+        
+        private readonly IAdministradorRepository _repository;
+
+        public AdministradorController(IAdministradorRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
+
         [HttpGet]
-        public ActionResult<IEnumerable<Administrador>> GetAdministradores()
+        public async Task<ActionResult<IEnumerable<Administrador>>> GetAdministradores()
         {
-            var administradores = _context.Administrador.ToList();
+            return Ok(await _repository.GetAllAsync());
+        }
 
-            if (!administradores.Any())
-            {
-                return NotFound("No se encontraron administradores.");
-            }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Administrador>> GetAdministrador(int id)
+        {
+            var admin = await _repository.GetByIdAsync(id);
+            if (admin == null)
+                return NotFound();
+            return Ok(admin);
+        }
 
-            return Ok(administradores);
+        [HttpPost]
+        public async Task<ActionResult> CrearAdministrador(Administrador administrador)
+        {
+            // Cifrar la contraseña antes de guardarla
+            administrador.Clave = BCrypt.Net.BCrypt.HashPassword(administrador.Clave);
+
+            // Guardar el administrador con la clave cifrada
+            await _repository.AddAsync(administrador);
+
+            return Ok(administrador);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> ActualizarAdministrador(int id, Administrador administrador)
+        {
+            if (id != administrador.Id)
+                return BadRequest();
+            await _repository.UpdateAsync(administrador);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> EliminarAdministrador(int id)
+        {
+            await _repository.DeleteAsync(id);
+            return NoContent();
         }
     }
 }

@@ -71,15 +71,14 @@ namespace gimnasio_web_api.Controllers
                 return BadRequest("La clave del vendedor es requerida.");
             }
 
-            var vendedor = await _context.Administrador
-                                        .FirstOrDefaultAsync(a => a.Clave == venta.Nombre_vendedor);
+            var vendedor = await _context.Administradores.FirstOrDefaultAsync(a => a.Clave == venta.Nombre_vendedor);
 
             if (vendedor == null)
             {
                 return NotFound("Vendedor no encontrado con esa clave.");
             }
 
-            venta.Nombre_vendedor = vendedor.Nombre;
+            venta.Nombre_vendedor = vendedor.Usuario;
 
             if (venta.CodigoProducto == 0)
             {
@@ -115,7 +114,7 @@ namespace gimnasio_web_api.Controllers
                 return BadRequest("La clave del vendedor es requerida.");
             }
 
-            var vendedor = await _context.Administrador
+            var vendedor = await _context.Administradores
                                         .FirstOrDefaultAsync(a => a.Clave == venta.Nombre_vendedor);
 
             if (vendedor == null)
@@ -123,7 +122,7 @@ namespace gimnasio_web_api.Controllers
                 return NotFound("Vendedor no encontrado con esa clave.");
             }
 
-            venta.Nombre_vendedor = vendedor.Nombre;
+            venta.Nombre_vendedor = vendedor.Usuario;
 
             if (venta.CodigoProducto == 0)
             {

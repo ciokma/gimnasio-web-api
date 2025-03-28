@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
+using NuGet.Protocol.Core.Types;
 
 namespace gimnasio_web_api
 {
@@ -82,6 +83,7 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IRepository<Mensaje, int>, MensajeRepository>();
             builder.Services.AddScoped<IVentaRepository, VentaRepository>();
             builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
+            builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
 
             Log.Logger = new LoggerConfiguration()
                 //.WriteTo.Console()
