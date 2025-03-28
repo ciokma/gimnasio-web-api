@@ -8,29 +8,30 @@ namespace gimnasio_web_api.Models
     public class Administrador
     {
         [Key]
-        [StringLength(30)]
-        public string Nombre { get; set; } = null!;
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
 
         [Required]
-        [StringLength(30)]
+        [StringLength(255)]
+        public string Usuario { get; set; } = null!;
+
+        [Required]
+        [StringLength(255)]
         public string Clave { get; set; } = null!;
+
+        [Required]
+        [StringLength(255)]
+        public string Email { get; set; } = null!;
 
         [Required]
         [StringLength(20)]
         public string Telefono { get; set; } = null!;
 
         [Required]
-        [StringLength(30)]
-        public string Apellido { get; set; } = null!;
-
-        [Required]
-        public DateTime Fecha_ingreso { get; set; }
+        [Column("FechaIngreso")]
+        public DateTime FechaIngreso { get; set; }
 
         [Required]
         public bool Activo { get; set; } = false;
-
-        [Required]
-        [StringLength(50)]
-        public string Direccion { get; set; } = null!;
     }
 }
