@@ -13,8 +13,7 @@ using Serilog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.Extensions.Options;
-using NuGet.Protocol.Core.Types;
+using dotenv.net;
 
 namespace gimnasio_web_api
 {
@@ -22,14 +21,31 @@ namespace gimnasio_web_api
     {
         public static void Main(string[] args)
         {
-
             var builder = WebApplication.CreateBuilder(args);
+
+            // Cargar variables de entorno desde .env
+            DotEnv.Load();
+
+            // Obtener y mostrar las variables de entorno
+            var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "undefined";
+            var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "undefined";
+            var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "undefined";
+            var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
+            var jwtSecret = Environment.GetEnvironmentVariable("JsonWebTokenSecret") ?? "";
+            /*
+            Console.WriteLine($"DB_HOST: {dbHost}");
+            Console.WriteLine($"DB_NAME: {dbName}");
+            Console.WriteLine($"DB_USER: {dbUser}");
+            Console.WriteLine($"DB_PASSWORD: {dbPassword}");
+            Console.WriteLine($"JsonWebTokenSecret: {jwtSecret}");
+            */
+            // Construir la cadena de conexion usando las variables de entorno
+            var connectionString = $"server={dbHost};database={dbName};uid={dbUser};pwd={dbPassword};Charset=utf8mb4;AllowZeroDateTime=True;";
 
             builder.WebHost.UseUrls("http://0.0.0.0:5211");
             //builder.Services.AddDbContext<AppDbContext>(options =>
             //    options.UseInMemoryDatabase("GimnasioInMemoryDb"));
 
-            var connectionString = builder.Configuration.GetConnectionString("AppDbContext");
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 41)),
                 mySqlOptions => mySqlOptions.EnableRetryOnFailure()));
@@ -51,9 +67,9 @@ namespace gimnasio_web_api
                         policy.SetIsOriginAllowed(origin =>
                         {
                             return origin.StartsWith("http://192.168.") ||
-                                origin.StartsWith("http://10.") ||
-                                origin.StartsWith("http://172.") ||
-                                origin.StartsWith("http://localhost");
+                                   origin.StartsWith("http://10.") ||
+                                   origin.StartsWith("http://172.") ||
+                                   origin.StartsWith("http://localhost");
                         })
                         .AllowAnyHeader()
                         .AllowAnyMethod();
@@ -72,8 +88,7 @@ namespace gimnasio_web_api
                               .AllowAnyMethod();
                     });
             });*/
-
-            //Inyectando dependencias
+            // Inyectando dependencias
             builder.Services.AddScoped<IRepository<Usuarios, int>, UsuarioRepository>();
             builder.Services.AddScoped<IRepository<Producto, int>, ProductoRepository>();
             builder.Services.AddScoped<IRepository<Fechas_Usuario, int>, Fechas_UsuarioRepository>();
@@ -93,7 +108,6 @@ namespace gimnasio_web_api
             builder.Logging.AddSerilog();
 
             // JsonWebToken 8.0.0 Autenticacion
-            #region JsonWebToken
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -105,20 +119,18 @@ namespace gimnasio_web_api
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = "gymsys.com",
                         ValidAudience = "gymsys.com",
-                        //Cambiar luego a appconfig
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue("JsonWebTokenSecret", "")))
+                        // Usar la clave JWT cargada desde la variable de entorno
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
                     };
                 });
 
             builder.Services.AddAuthorization();
 
-            #endregion JsonWebToken
             var app = builder.Build();
+
             app.UseCors("AllowLocalNetwork");
             app.UseAuthentication();
             app.UseAuthorization();
-
-
 
             if (app.Environment.IsDevelopment())
             {
@@ -131,15 +143,13 @@ namespace gimnasio_web_api
             }
 
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
-
             app.MapControllers();
 
             var summaries = new[]
             {
-                        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-                    };
+                "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+            };
 
             app.MapGet("/weatherforecast", () =>
             {
