@@ -13,6 +13,9 @@ namespace gimnasio_web_api.Data
                 .WithOne(f => f.Usuario)
                 .HasForeignKey(f => f.UsuarioId);
 
+            modelBuilder.Entity<Administrador>()
+            .HasIndex(p => p.FechaIngreso);
+
             modelBuilder.Entity<Pago>()
             .HasIndex(p => p.CodigoUsuario);
         
@@ -51,7 +54,7 @@ namespace gimnasio_web_api.Data
         public DbSet<Pago> Pagos { get; set; }
         public DbSet<Mensaje> Mensaje { get; set; }
         public DbSet<Venta> Venta { get; set; }
-        public DbSet<Administrador> Administrador { get; set; }
+        public DbSet<Administrador> Administradores { get; set; }
         public DbSet<Asistencia> Asistencias { get; set; }
     }
 }

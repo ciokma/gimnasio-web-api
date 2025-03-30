@@ -1,0 +1,41 @@
+# Archivos de configuración del sistema y del IDE
+.vs/
+.idea/
+*.suo
+*.user
+*.vsconfig
+*.vscode/
+
+# Archivos generados por el build
+bin/
+obj/
+out/
+
+# Dependencias locales y paquetes de NuGet restaurados
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+project.lock.json
+project.assets.json
+logs/
+
+# Archivos temporales y de sistema
+*.log
+*.tmp
+*.swp
+*.swo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Archivos de Git y Docker
+.git/
+.gitignore
+.dockerignore
+
+# Configuración y credenciales sensibles (ajustar según el proyecto)
+secrets.json
+appsettings.Development.json
+.env
+

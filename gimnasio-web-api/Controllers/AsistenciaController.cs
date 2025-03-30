@@ -12,7 +12,7 @@ namespace gimnasio_web_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class AsistenciaController : ControllerBase
     {
         private readonly IAsistenciaRepository _asistenciaRepository;
