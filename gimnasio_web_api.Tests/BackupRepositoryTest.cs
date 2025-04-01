@@ -43,7 +43,7 @@ namespace gimnasio_web_api.Tests
 
             var backup = new Backup
             {
-                FechaRespaldo = DateTime.UtcNow,
+                ProximoRespaldo = DateTime.UtcNow,
                 FrecuenciaRespaldo = "Diario",
                 FechaRespaldoAnterior = null
             };
@@ -64,7 +64,7 @@ namespace gimnasio_web_api.Tests
 
             var backup = new Backup
             {
-                FechaRespaldo = DateTime.UtcNow,
+                ProximoRespaldo = DateTime.UtcNow,
                 FrecuenciaRespaldo = "Semanal",
                 FechaRespaldoAnterior = null
             };

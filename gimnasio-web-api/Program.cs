@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using dotenv.net;
+using Hangfire;
+using Hangfire.MySql;
 
 namespace gimnasio_web_api
 {
@@ -40,7 +42,7 @@ namespace gimnasio_web_api
             Console.WriteLine($"JsonWebTokenSecret: {jwtSecret}");
             */
             // Construir la cadena de conexion usando las variables de entorno
-            var connectionString = $"server={dbHost};database={dbName};uid={dbUser};pwd={dbPassword};Charset=utf8mb4;AllowZeroDateTime=True;";
+            var connectionString = $"server={dbHost};database={dbName};uid={dbUser};pwd={dbPassword};Charset=utf8mb4;AllowZeroDateTime=True;Allow User Variables=true;";
 
             builder.WebHost.UseUrls("http://0.0.0.0:5211");
             //builder.Services.AddDbContext<AppDbContext>(options =>
@@ -60,7 +62,6 @@ namespace gimnasio_web_api
                 config.UseStorage(new MySqlStorage(connectionString, new MySqlStorageOptions())));
             builder.Services.AddHangfireServer();
             builder.Services.AddScoped<DatabaseBackupService>();
-            
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -138,6 +139,16 @@ namespace gimnasio_web_api
             app.UseCors("AllowLocalNetwork");
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseHangfireDashboard();
+            RecurringJob.AddOrUpdate<DatabaseBackupService>(
+                "backup-job",
+                service => service.HacerBackupAsync(),
+                "0 19 * * *",
+                new RecurringJobOptions
+                {
+                    TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time")
+                }
+            );
 
             if (app.Environment.IsDevelopment())
             {

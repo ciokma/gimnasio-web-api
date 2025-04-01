@@ -60,3 +60,4 @@ gimnasio_web_api.Tests/packages/
 gimnasio-web-api/Logs
 gimnasio-web-api/wwwroot/Images/*.png
 gimnasio-web-api/Migrations
+gimnasio-web-api/.env

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using gimnasio_web_api.Repositories;
 using gimnasio_web_api.Models;
 using MySqlConnector;
+using dotenv.net;
 
 public class DatabaseBackupService
 {
@@ -66,20 +67,18 @@ public class DatabaseBackupService
 
     private async Task EjecutarBackupAsync()
     {
+        var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "undefined";
+        var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "undefined";
+        var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "undefined";
+        var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
         try
         {
             Directory.CreateDirectory(_backupPath);
 
-            var connectionString = _configuration.GetConnectionString("AppDbContext");
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException("The connection string is null or empty.");
-            }
-            var builder = new MySqlConnectionStringBuilder(connectionString);
-            string databaseName = builder.Database;
-            string user = builder.UserID;
-            string password = builder.Password;
-            string server = builder.Server;
+            string databaseName = dbName;
+            string user = dbUser;
+            string password = dbPassword;
+            string server = dbHost;
 
             string timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd");
             string fileName = Path.Combine(_backupPath, $"backup_{databaseName}_{timestamp}.sql");
