@@ -22,6 +22,9 @@ namespace gimnasioNet.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly IConfiguration _configuration;
 
+           
+        
+
         public AuthController(IAdministradorRepository repository, ILogger<AuthController> logger, IConfiguration configuration)
         {
             _repository = repository;
@@ -63,8 +66,8 @@ namespace gimnasioNet.Controllers
                 new Claim("role", "Administrador"),
                 new Claim(JwtRegisteredClaimNames.Exp, expiresAtUnix.ToString(), ClaimValueTypes.Integer64) // Opcional
             };
-
-            var jsonWebTokenSecret = _configuration["JsonWebTokenSecret"];
+            
+            var jsonWebTokenSecret = Environment.GetEnvironmentVariable("JsonWebTokenSecret") ?? "";
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jsonWebTokenSecret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
