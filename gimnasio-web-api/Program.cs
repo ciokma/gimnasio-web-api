@@ -15,6 +15,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
 using NuGet.Protocol.Core.Types;
+using Hangfire;
+using Hangfire.MySql;
+using System.Diagnostics;
 
 namespace gimnasio_web_api
 {
@@ -39,6 +42,12 @@ namespace gimnasio_web_api
                 {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
+
+            builder.Services.AddHangfire(config => 
+                config.UseStorage(new MySqlStorage(connectionString, new MySqlStorageOptions())));
+            builder.Services.AddHangfireServer();
+            builder.Services.AddScoped<DatabaseBackupService>();
+            
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -84,6 +93,7 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IVentaRepository, VentaRepository>();
             builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
             builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
+            builder.Services.AddScoped<IBackupRepository, BackupRepository>();
 
             Log.Logger = new LoggerConfiguration()
                 //.WriteTo.Console()
@@ -117,6 +127,16 @@ namespace gimnasio_web_api
             app.UseCors("AllowLocalNetwork");
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseHangfireDashboard();
+            RecurringJob.AddOrUpdate<DatabaseBackupService>(
+                "backup-job",
+                service => service.HacerBackupAsync(),
+                "0 17 * * *",
+                new RecurringJobOptions
+                {
+                    TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time")
+                }
+            );
 
 
 
