@@ -147,5 +147,11 @@ namespace gimnasio_web_api.Repositories
                 .OrderBy(r => r.Dia)
                 .ToListAsync();
         }
+        public async Task EliminarRegistrosPorMesAsync(int year, int month)
+        {
+            await _context.Asistencias
+                .Where(a => a.Fecha.Year == year && a.Fecha.Month == month)
+                .ExecuteDeleteAsync();
+        }
     }
 }

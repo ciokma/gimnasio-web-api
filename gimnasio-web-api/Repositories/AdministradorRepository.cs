@@ -19,9 +19,13 @@ namespace gimnasio_web_api.Repositories
             return await _context.Administradores.ToListAsync();
         }
 
-        public async Task<Administrador?> GetByIdAsync(int id)
+        public async Task<Administrador> GetByIdAsync(int id)
         {
-            return await _context.Administradores.FindAsync(id);
+            var administrador = await _context.Administradores.FindAsync(id);
+            if (administrador == null)
+                throw new KeyNotFoundException($"No se encontró un Administrador con ID {id}");
+
+            return administrador;
         }
 
         public async Task<Administrador?> GetByUsernameAsync(string username)

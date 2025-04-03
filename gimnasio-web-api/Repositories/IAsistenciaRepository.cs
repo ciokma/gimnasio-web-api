@@ -14,5 +14,7 @@ namespace gimnasio_web_api.Repositories
         Task<IEnumerable<AsistenciaResumenDto>> GetAñosConAsistenciasAsync();
         Task<IEnumerable<AsistenciaResumenDto>> GetMesesConAsistenciasAsync(int year);
         Task<IEnumerable<AsistenciaResumenDto>> GetDiasConAsistenciasAsync(int year, int month);
+        Task EliminarRegistrosPorMesAsync(int year, int month);
+
     }
 }

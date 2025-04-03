@@ -140,15 +140,7 @@ namespace gimnasio_web_api
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseHangfireDashboard();
-            RecurringJob.AddOrUpdate<DatabaseBackupService>(
-                "backup-job",
-                service => service.HacerBackupAsync(),
-                "0 19 * * *",
-                new RecurringJobOptions
-                {
-                    TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time")
-                }
-            );
+            gimnasio_web_api.Jobs.HangfireJobsConfig.ConfigurarJobs();
 
             if (app.Environment.IsDevelopment())
             {
