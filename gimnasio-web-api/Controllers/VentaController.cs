@@ -66,25 +66,6 @@ namespace gimnasio_web_api.Controllers
         [HttpPost]
         public async Task<ActionResult<Venta>> PostVenta(Venta venta)
         {
-            if (string.IsNullOrEmpty(venta.Nombre_vendedor))
-            {
-                return BadRequest("La clave del vendedor es requerida.");
-            }
-
-            var vendedor = await _context.Administradores.FirstOrDefaultAsync(a => a.Clave == venta.Nombre_vendedor);
-
-            if (vendedor == null)
-            {
-                return NotFound("Vendedor no encontrado con esa clave.");
-            }
-
-            venta.Nombre_vendedor = vendedor.Usuario;
-
-            if (venta.CodigoProducto == 0)
-            {
-                return BadRequest("Debe proporcionar un producto para registrar la venta.");
-            }
-
             var producto = await _context.Producto
                                         .FirstOrDefaultAsync(p => p.CodigoProducto == venta.CodigoProducto);
 

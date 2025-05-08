@@ -56,5 +56,6 @@ namespace gimnasio_web_api.Data
         public DbSet<Venta> Venta { get; set; }
         public DbSet<Administrador> Administradores { get; set; }
         public DbSet<Asistencia> Asistencias { get; set; }
+        public DbSet<Backup> Backup { get; set; }
     }
 }
