@@ -71,27 +71,37 @@ public class DatabaseBackupService
         var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "undefined";
         var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "undefined";
         var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
+
         try
         {
-            Directory.CreateDirectory(_backupPath);
+            var backupPath = Environment.GetEnvironmentVariable("BACKUP_PATH") ??
+                            (OperatingSystem.IsWindows() ? "C:\\Backups" : "/var/backups");
 
-            string databaseName = dbName;
-            string user = dbUser;
-            string password = dbPassword;
-            string server = dbHost;
+            Directory.CreateDirectory(backupPath);
 
             string timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd");
-            string fileName = Path.Combine(_backupPath, $"backup_{databaseName}_{timestamp}.sql");
+            string fileName = Path.Combine(backupPath, $"backup_{dbName}_{timestamp}.sql");
 
-            string command = $"mysqldump --user={user} --password={password} --host={server} {databaseName} > \"{fileName}\"";
+            string dumpCommand = $"mysqldump --user={dbUser} --password={dbPassword} --host={dbHost} {dbName}";
 
-            var processInfo = new ProcessStartInfo("cmd.exe", "/c " + command)
+            string fullCommand;
+            ProcessStartInfo processInfo;
+
+            if (OperatingSystem.IsWindows())
             {
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+                fullCommand = $"{dumpCommand} > \"{fileName}\"";
+                processInfo = new ProcessStartInfo("cmd.exe", "/c " + fullCommand);
+            }
+            else
+            {
+                fullCommand = $"{dumpCommand} > '{fileName}'";
+                processInfo = new ProcessStartInfo("/bin/bash", "-c \"" + fullCommand + "\"");
+            }
+
+            processInfo.RedirectStandardOutput = true;
+            processInfo.RedirectStandardError = true;
+            processInfo.UseShellExecute = false;
+            processInfo.CreateNoWindow = true;
 
             using (var process = Process.Start(processInfo))
             {

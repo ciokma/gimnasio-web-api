@@ -4,7 +4,7 @@ namespace gimnasio_web_api.Models
     public class Backup
     {
         public int Id { get; set; }
-        [Column("proximo_respaldo")]
+        [Column("fecha_respaldo")]
         public DateTime ProximoRespaldo { get; set; }
         [Column("frecuencia_respaldo")]
         public required string FrecuenciaRespaldo { get; set; }
