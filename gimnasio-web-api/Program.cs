@@ -59,6 +59,7 @@ namespace gimnasio_web_api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            /* deshabilitar temporalmente para pruebas
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowLocalNetwork",
@@ -75,6 +76,18 @@ namespace gimnasio_web_api
                         .AllowAnyMethod();
                     });
             });
+            */
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
 
             /*builder.Services.AddCors(options =>
             {
@@ -128,7 +141,9 @@ namespace gimnasio_web_api
 
             var app = builder.Build();
 
-            app.UseCors("AllowLocalNetwork");
+
+            //app.UseCors("AllowLocalNetwork");
+            app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -142,7 +157,7 @@ namespace gimnasio_web_api
                 });
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.MapControllers();
 
