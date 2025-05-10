@@ -128,50 +128,64 @@ namespace gimnasioNet.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
-            }
-
-            if (foto != null)
-            {
-                var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(foto.FileName);
-                var filePath = Path.Combine(_imagePath ?? string.Empty, newFileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                return BadRequest(new
                 {
-                    await foto.CopyToAsync(stream);
-                }
-
-                usuario.Foto = newFileName;
+                    mensaje = "El modelo de datos enviado no es válido.",
+                    errores = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                });
             }
-            else
-            {
-                var defaultImagePath = Path.Combine(_imagePath ?? string.Empty, _defaultImageName);
-                if (!System.IO.File.Exists(defaultImagePath))
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError, new { message = "La imagen predeterminada no existe." });
-                }
-
-                var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(defaultImagePath);
-                var newFilePath = Path.Combine(_imagePath ?? string.Empty, newFileName);
-                System.IO.File.Copy(defaultImagePath, newFilePath);
-
-                usuario.Foto = newFileName;
-            }
-
-            //_context.Usuarios.Add(usuario);
 
             try
             {
-                //await _context.SaveChangesAsync();
+                if (foto != null)
+                {
+                    var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(foto.FileName);
+                    var filePath = Path.Combine(_imagePath ?? string.Empty, newFileName);
+
+                    await using var stream = new FileStream(filePath, FileMode.Create);
+                    await foto.CopyToAsync(stream);
+
+                    usuario.Foto = newFileName;
+                }
+                else
+                {
+                    var defaultImagePath = Path.Combine(_imagePath ?? string.Empty, _defaultImageName);
+                    if (!System.IO.File.Exists(defaultImagePath))
+                    {
+                        return StatusCode(StatusCodes.Status500InternalServerError, new
+                        {
+                            mensaje = "No se encontró la imagen predeterminada.",
+                            rutaEsperada = defaultImagePath
+                        });
+                    }
+
+                    var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(defaultImagePath);
+                    var newFilePath = Path.Combine(_imagePath ?? string.Empty, newFileName);
+                    System.IO.File.Copy(defaultImagePath, newFilePath);
+
+                    usuario.Foto = newFileName;
+                }
+
                 await _repository.AddAsync(usuario);
             }
             catch (DbUpdateException ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Error al agregar el usuario: " + ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    mensaje = "Error al guardar el usuario en la base de datos.",
+                    errorTecnico = ex.Message,
+                    detalle = ex.InnerException?.Message,
+                    pista = "Revisa si hay campos requeridos que no se están enviando, como 'Fecha_Pago'."
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Error inesperado: " + ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    mensaje = "Se produjo un error inesperado al procesar la solicitud.",
+                    errorTecnico = ex.Message,
+                    detalle = ex.InnerException?.Message
+                });
             }
 
             return CreatedAtAction("GetUsuarios", new { id = usuario.Codigo }, usuario);
