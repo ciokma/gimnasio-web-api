@@ -15,16 +15,18 @@ namespace gimnasioNet.Controllers
     {
         private readonly AppDbContext _context;
         private readonly string _imagePath;
+        private readonly IWebHostEnvironment _env;
         private readonly string _defaultImageName = "Default.png";
 
         //new changes
         private readonly IRepository<Usuarios, int> _repository;
 
-        public UsuariosController(AppDbContext context, IRepository<Usuarios, int> repository)
+        public UsuariosController(AppDbContext context, IRepository<Usuarios, int> repository, IWebHostEnvironment env)
         {
+            _env = env;
             _context = context;
             _repository = repository;
-            _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
+            _imagePath = Path.Combine(_env.WebRootPath, "Images");
         }
 
         // GET: api/Usuarios
