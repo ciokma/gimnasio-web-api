@@ -23,10 +23,15 @@ namespace gimnasioNet.Controllers
 
         public UsuariosController(AppDbContext context, IRepository<Usuarios, int> repository, IWebHostEnvironment env)
         {
-            _env = env;
             _context = context;
             _repository = repository;
+            _env = env;
+            
             _imagePath = Path.Combine(_env.WebRootPath, "Images");
+            if (!Directory.Exists(_imagePath))
+            {
+                Directory.CreateDirectory(_imagePath);
+            }
         }
 
         // GET: api/Usuarios
