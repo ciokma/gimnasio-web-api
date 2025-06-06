@@ -120,6 +120,7 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
             builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
             builder.Services.AddScoped<IBackupRepository, BackupRepository>();
+            builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
             Log.Logger = new LoggerConfiguration()
                 //.WriteTo.Console()
