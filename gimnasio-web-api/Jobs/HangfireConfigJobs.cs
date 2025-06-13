@@ -1,6 +1,7 @@
 using Hangfire;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using gimnasio_web_api.Services;
 
 namespace gimnasio_web_api.Jobs
 {
@@ -23,6 +24,13 @@ namespace gimnasio_web_api.Jobs
             RecurringJob.AddOrUpdate<AsistenciaCleanupService>(
                 "CleanAsistencia-job",
                 service => service.EjecutarLimpiezaAsync(),
+                "0 19 1 * *",
+                opcionJob
+            );
+
+            RecurringJob.AddOrUpdate<ConfiguracionService>(
+                "Configuracion-job",
+                service => service.EjecutarConfiguracionesAsync(),
                 "0 19 1 * *",
                 opcionJob
             );

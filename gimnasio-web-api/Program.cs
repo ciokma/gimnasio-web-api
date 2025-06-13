@@ -121,7 +121,7 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
             builder.Services.AddScoped<IBackupRepository, BackupRepository>();
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-
+            builder.Services.AddScoped<IRepository<ConfiguracionesSistema, int>, ConfiguracionesSistemaRepository>();
             Log.Logger = new LoggerConfiguration()
                 //.WriteTo.Console()
                 .WriteTo.File("Logs/myapp.log", rollingInterval: RollingInterval.Day)

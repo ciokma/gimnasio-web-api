@@ -6,7 +6,7 @@ namespace gimnasio_web_api.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Usuarios>()
                 .HasMany(u => u.FechasUsuario)
@@ -18,10 +18,10 @@ namespace gimnasio_web_api.Data
 
             modelBuilder.Entity<Pago>()
             .HasIndex(p => p.CodigoUsuario);
-        
+
             modelBuilder.Entity<Pago>()
                 .HasIndex(p => p.FechaPago);
-            
+
             modelBuilder.Entity<Usuarios>()
                 .HasIndex(u => new { u.Nombres, u.Apellidos })
                 .HasDatabaseName("idx_nombres_apellidos");
@@ -31,11 +31,11 @@ namespace gimnasio_web_api.Data
                 .HasDatabaseName("idx_usuarios_para_asistencia");
 
             modelBuilder.Entity<Fechas_Usuario>()
-                .HasIndex(f => new {f.UsuarioId, f.FechaPago, f.FechaVencimiento})
+                .HasIndex(f => new { f.UsuarioId, f.FechaPago, f.FechaVencimiento })
                 .HasDatabaseName("idx_fechas_usuario_para_asistencia");
 
             modelBuilder.Entity<Pago>()
-                .HasIndex(p => new {p.CodigoUsuario, p.FechaPago, p.MesesPagados, p.IntervaloPago})
+                .HasIndex(p => new { p.CodigoUsuario, p.FechaPago, p.MesesPagados, p.IntervaloPago })
                 .HasDatabaseName("idx_pagos_para_asistencia");
             modelBuilder.Entity<Venta>()
                 .HasOne(v => v.Producto)
@@ -57,5 +57,6 @@ namespace gimnasio_web_api.Data
         public DbSet<Administrador> Administradores { get; set; }
         public DbSet<Asistencia> Asistencias { get; set; }
         public DbSet<Backup> Backup { get; set; }
+        public DbSet<ConfiguracionesSistema> ConfiguracionesSistema { get; set; }
     }
 }
