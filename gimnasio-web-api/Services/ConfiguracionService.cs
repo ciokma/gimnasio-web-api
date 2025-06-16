@@ -1,6 +1,7 @@
 using gimnasio_web_api.Models;
 using gimnasio_web_api.DTOs;
 using gimnasio_web_api.Data;
+using gimnasio_web_api.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -10,11 +11,13 @@ namespace gimnasio_web_api.Services
     {
         private readonly AppDbContext _context;
         private readonly ILogger<ConfiguracionService> _logger;
+        private readonly IMensajeRepository _mensajeRepository;
 
-        public ConfiguracionService(AppDbContext context, ILogger<ConfiguracionService> logger)
+        public ConfiguracionService(AppDbContext context, ILogger<ConfiguracionService> logger, IMensajeRepository mensajeRepository)
         {
             _context = context;
             _logger = logger;
+            _mensajeRepository = mensajeRepository;
         }
 
         public async Task EjecutarConfiguracionesAsync()
@@ -69,7 +72,41 @@ namespace gimnasio_web_api.Services
                 .ToListAsync();
 
             _logger.LogInformation("Se encontraron {Cantidad} usuarios para inactivar.", usuariosConVencimiento.Count);
+
+            if (usuariosConVencimiento.Any())
+            {
+                _logger.LogInformation("Listado de usuarios Inactivos");
+                var codigosConcatenados = string.Join(" - ", usuariosConVencimiento.Select(item => item.Usuario.Codigo));
+                _logger.LogInformation("{Codigos}", codigosConcatenados);
+
+                await GuardarMensajeSistemaAsync(codigosConcatenados, "SISTEMA");
+                await GuardarMensajeSistemaAsync("Listado de usuarios a Inactivos:","SISTEMA-CROSSFIT");
+                foreach (var item in usuariosConVencimiento)
+                {
+                    item.Usuario.Activo = false;
+                }
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Cambios guardados: usuarios inactivados.");
+            }
+            else
+            {
+                _logger.LogInformation("No hay usuarios para inactivar según la configuración actual.");
+            }
         }
+
+        private async Task GuardarMensajeSistemaAsync(string texto, string emisor)
+        {
+            var mensaje = new Mensaje
+            {
+                Texto = texto,
+                Emisor = emisor,
+                FechaEmision = DateTime.UtcNow,
+                Leido = false
+            };
+
+            await _mensajeRepository.AddAsync(mensaje);
+        }
+
 
         private async Task EliminarUsuariosInactivosAsync()
         {

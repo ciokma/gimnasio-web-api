@@ -15,6 +15,12 @@ namespace gimnasio_web_api.Models
         [StringLength(50)]
         [Column("Mensaje")]
         [JsonPropertyName("Texto")]
-        public required string Texto  { get; set; }
+        public required string Texto { get; set; }
+        [Required]
+        [StringLength(50)]
+        public required string Emisor { get; set; }
+        [Column("fechaemision", TypeName = "DATE")]
+        public DateTime? FechaEmision { get; set; }
+        public required bool Leido { get; set; } = true;
     }
 }

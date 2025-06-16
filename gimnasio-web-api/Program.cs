@@ -7,6 +7,7 @@ using gimnasio_web_api.Data;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using gimnasio_web_api.Repositories;
+using gimnasio_web_api.Services;
 using gimnasio_web_api.Models;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -115,13 +116,14 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IRepository<Tipo_Ejercicio, int>, Tipo_EjercicioRepository>();
             builder.Services.AddScoped<IRepository<Tipo_Pagos, string>, Tipo_PagoRepository>();
             builder.Services.AddScoped<IRepository<Pago, int>, PagoRepository>();
-            builder.Services.AddScoped<IRepository<Mensaje, int>, MensajeRepository>();
+            builder.Services.AddScoped<IMensajeRepository, MensajeRepository>();
             builder.Services.AddScoped<IVentaRepository, VentaRepository>();
             builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
             builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
             builder.Services.AddScoped<IBackupRepository, BackupRepository>();
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             builder.Services.AddScoped<IRepository<ConfiguracionesSistema, int>, ConfiguracionesSistemaRepository>();
+            builder.Services.AddScoped<ConfiguracionService>();
             Log.Logger = new LoggerConfiguration()
                 //.WriteTo.Console()
                 .WriteTo.File("Logs/myapp.log", rollingInterval: RollingInterval.Day)

@@ -1,6 +1,8 @@
 using gimnasio_web_api.Models;
 using gimnasio_web_api.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using gimnasio_web_api.Services;
+using gimnasio_web_api.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
 namespace gimnasio_web_api.Controllers
@@ -11,9 +13,10 @@ namespace gimnasio_web_api.Controllers
     public class ConfiguracionesSistemaController : ControllerBase
     {
         private readonly IRepository<ConfiguracionesSistema, int> _repository;
-
-        public ConfiguracionesSistemaController(IRepository<ConfiguracionesSistema, int> repository)
+        private readonly ConfiguracionService _configuracionService;
+        public ConfiguracionesSistemaController(IRepository<ConfiguracionesSistema, int> repository, ConfiguracionService configuracionService)
         {
+            _configuracionService = configuracionService;
             _repository = repository;
         }
 
@@ -76,6 +79,12 @@ namespace gimnasio_web_api.Controllers
             {
                 return NotFound(e.Message);
             }
+        }
+        [HttpGet("usuarios-inactivos")]
+        public async Task<ActionResult<List<UsuariosInactivosDto>>> ObtenerUsuariosInactivos()
+        {
+            var usuarios = await _configuracionService.ObtenerUsuariosInactivosAsync();
+            return Ok(usuarios);
         }
     }
 }
