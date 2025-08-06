@@ -7,6 +7,7 @@ using gimnasio_web_api.Data;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using gimnasio_web_api.Repositories;
+using gimnasio_web_api.Services;
 using gimnasio_web_api.Models;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -14,6 +15,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using dotenv.net;
+using Hangfire;
+using Hangfire.MySql;
 
 namespace gimnasio_web_api
 {
@@ -40,7 +43,7 @@ namespace gimnasio_web_api
             Console.WriteLine($"JsonWebTokenSecret: {jwtSecret}");
             */
             // Construir la cadena de conexion usando las variables de entorno
-            var connectionString = $"server={dbHost};database={dbName};uid={dbUser};pwd={dbPassword};Charset=utf8mb4;AllowZeroDateTime=True;";
+            var connectionString = $"server={dbHost};database={dbName};uid={dbUser};pwd={dbPassword};Charset=utf8mb4;AllowZeroDateTime=True;Allow User Variables=true;";
 
             builder.WebHost.UseUrls("http://0.0.0.0:5211");
             //builder.Services.AddDbContext<AppDbContext>(options =>
@@ -56,9 +59,15 @@ namespace gimnasio_web_api
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
 
+            builder.Services.AddHangfire(config => 
+                config.UseStorage(new MySqlStorage(connectionString, new MySqlStorageOptions())));
+            builder.Services.AddHangfireServer();
+            builder.Services.AddScoped<DatabaseBackupService>();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            /* deshabilitar temporalmente para pruebas
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowLocalNetwork",
@@ -75,6 +84,18 @@ namespace gimnasio_web_api
                         .AllowAnyMethod();
                     });
             });
+            */
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
 
             /*builder.Services.AddCors(options =>
             {
@@ -95,11 +116,14 @@ namespace gimnasio_web_api
             builder.Services.AddScoped<IRepository<Tipo_Ejercicio, int>, Tipo_EjercicioRepository>();
             builder.Services.AddScoped<IRepository<Tipo_Pagos, string>, Tipo_PagoRepository>();
             builder.Services.AddScoped<IRepository<Pago, int>, PagoRepository>();
-            builder.Services.AddScoped<IRepository<Mensaje, int>, MensajeRepository>();
+            builder.Services.AddScoped<IMensajeRepository, MensajeRepository>();
             builder.Services.AddScoped<IVentaRepository, VentaRepository>();
             builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
             builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
-
+            builder.Services.AddScoped<IBackupRepository, BackupRepository>();
+            builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            builder.Services.AddScoped<IRepository<ConfiguracionesSistema, int>, ConfiguracionesSistemaRepository>();
+            builder.Services.AddScoped<ConfiguracionService>();
             Log.Logger = new LoggerConfiguration()
                 //.WriteTo.Console()
                 .WriteTo.File("Logs/myapp.log", rollingInterval: RollingInterval.Day)
@@ -128,9 +152,13 @@ namespace gimnasio_web_api
 
             var app = builder.Build();
 
-            app.UseCors("AllowLocalNetwork");
+
+            //app.UseCors("AllowLocalNetwork");
+            app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseHangfireDashboard();
+            gimnasio_web_api.Jobs.HangfireJobsConfig.ConfigurarJobs();
 
             if (app.Environment.IsDevelopment())
             {
@@ -142,7 +170,7 @@ namespace gimnasio_web_api
                 });
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.MapControllers();
 

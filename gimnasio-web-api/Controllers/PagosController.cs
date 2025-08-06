@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class PagosController : ControllerBase
 {
     private readonly IRepository<Pago, int> _repository;
@@ -571,6 +571,50 @@ public class PagosController : ControllerBase
         {
             _logger.LogError("Error al obtener el último pago del usuario con ID {usuarioId}: {errorMessage}", usuarioId, ex.Message);
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+    }
+    [HttpGet("vencimientos-proximos")]
+    public async Task<IActionResult> GetUsuariosConVencimientoProximo()
+    {
+        try
+        {
+            DateTime hoy = DateTime.Today;
+            DateTime limite = hoy.AddDays(7);
+
+            var usuariosConVencimientoRaw = await _context.Usuarios
+                .Where(u => u.Activo && u.FechasUsuario != null && u.FechasUsuario.Any())
+                .Select(u => new
+                {
+                    Usuario = u,
+                    FechaVencimiento = u.FechasUsuario!
+                        .OrderByDescending(f => f.FechaVencimiento)
+                        .Select(f => f.FechaVencimiento)
+                        .FirstOrDefault()
+                })
+                .Where(x => x.FechaVencimiento != null && x.FechaVencimiento >= hoy && x.FechaVencimiento <= limite)
+                .OrderBy(x => x.FechaVencimiento)
+                .ToListAsync();
+
+            var usuariosConVencimiento = usuariosConVencimientoRaw
+                .Select(x => new
+                {
+                    x.Usuario.Codigo,
+                    NombreCompleto = x.Usuario.Nombres + " " + x.Usuario.Apellidos,
+                    FechaVencimiento = x.FechaVencimiento?.ToString("yyyy-MM-dd"),
+                    DiasRestantes = (x.FechaVencimiento!.Value - hoy).Days
+                })
+                .ToList();
+
+            if (usuariosConVencimiento.Count == 0)
+            {
+                return NotFound(new { message = "No se encontraron usuarios con vencimientos próximos (dentro de 7 días)." });
+            }
+
+            return Ok(usuariosConVencimiento);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Ocurrió un error al obtener los vencimientos", error = ex.Message });
         }
     }
 }

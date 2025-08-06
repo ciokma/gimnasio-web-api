@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace gimnasio_web_api.Repositories
 {
-    public class UsuarioRepository : IRepository<Usuarios, int>
+    public class UsuarioRepository : IUsuarioRepository
     {
         private readonly AppDbContext _context;
 
@@ -41,6 +41,7 @@ namespace gimnasio_web_api.Repositories
             return await _context.Usuarios.ToListAsync();
         }
 
+
         public async Task<Usuarios> GetByIdAsync(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
@@ -61,6 +62,15 @@ namespace gimnasio_web_api.Repositories
         {
             _context.Usuarios.Update(entity);
             await _context.SaveChangesAsync();
+        }
+
+
+
+        public async Task<List<Usuarios>> GetActiveUsers()
+        {
+            return await _context.Usuarios
+                .Where(u => u.Activo)
+                .ToListAsync();
         }
     }
 }
