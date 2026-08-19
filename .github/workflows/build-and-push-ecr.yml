@@ -1,0 +1,124 @@
+name: CI .NET API - Build and Push to ECR
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: us-east-1
+  DOTNET_VERSION: '8.0.x'
+
+  APP_PROJECT: './gimnasio-web-api/gimnasio-web-api.csproj'
+  TEST_PROJECT: './gimnasio_web_api.Tests/gimnasio_web_api.Tests.csproj'
+
+jobs:
+
+  dotnet:
+    name: .NET Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore application
+        run: |
+          dotnet restore ${{ env.APP_PROJECT }}
+
+      - name: Restore tests
+        run: |
+          dotnet restore ${{ env.TEST_PROJECT }}
+
+      - name: Build application
+        run: |
+          dotnet build ${{ env.APP_PROJECT }} \
+            --configuration Release \
+            --no-restore
+
+      - name: Run tests
+        run: |
+          dotnet test ${{ env.TEST_PROJECT }} \
+            --configuration Release \
+            --no-restore
+
+
+  docker:
+    name: Build Docker Image and Push to ECR
+    runs-on: ubuntu-latest
+    needs: dotnet
+
+    # Este environment contiene AWS_ROLE_TO_ASSUME
+    environment: dev
+
+    # Solo publicamos la imagen cuando el código llega a main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify AWS Identity
+        run: |
+          aws sts get-caller-identity
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Generate Docker Image Tag
+        id: image-tag
+        run: |
+          echo "tag=$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.image-tag.outputs.tag }}
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            -f ./gimnasio-web-api/Dockerfile \
+            ./gimnasio-web-api
+
+      - name: Push Docker Image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.image-tag.outputs.tag }}
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Show Image Information
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.image-tag.outputs.tag }}
+        run: |
+          echo "=========================================="
+          echo "Docker image successfully pushed"
+          echo "=========================================="
+          echo "Image:"
+          echo "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo ""
+          echo "Latest:"
+          echo "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+          echo "=========================================="
